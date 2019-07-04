@@ -8,14 +8,14 @@ import skaro.frenbot.receivers.Receiver;
 
 public class FixedRewardCommand implements PointRewardCommand {
 
-	Receiver receiver;
+	private Receiver receiver;
 
 	@Override
 	public Mono<Message> rewardPointsForMessage(Message message) {
 		return message.getAuthor()
 				.map(author -> author.getId().asString())
 				.map(id -> new PointAmountArgument(1, id))
-				.map(pointAmount -> receiver.process(pointAmount))
+				.map(pointAmount -> receiver.process(pointAmount, message))
 				.orElse(Mono.empty());
 	}
 	

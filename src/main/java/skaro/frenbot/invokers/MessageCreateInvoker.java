@@ -29,7 +29,7 @@ public class MessageCreateInvoker implements Invoker {
 				.flatMap(parsedText -> {
 					try { return library.getCommandFor(parsedText); }
 					catch (Exception e) { throw Exceptions.propagate(e); }})
-				.map(command -> command.execute())
+				.map(command -> command.execute(message))
 				.orElse(Mono.empty());
 	}
 

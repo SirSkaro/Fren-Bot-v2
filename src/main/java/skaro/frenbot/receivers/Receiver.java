@@ -6,6 +6,6 @@ import skaro.frenbot.commands.arguments.Argument;
 
 public interface Receiver {
 
-	Mono<Message> process(Argument argument);
+	Mono<Message> process(Argument argument, Message message);
 	
 }
