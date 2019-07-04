@@ -1,11 +1,14 @@
 package skaro.frenbot.commands;
 
+import java.util.List;
+
 import discord4j.core.object.entity.Message;
 import reactor.core.publisher.Mono;
 
 public interface Command {
 
-	public Mono<Message> execute(String arguments);
-	public String getName();
+	Mono<Message> execute();
+	void setArguments(List<String> arguments);
+	String getName();
 	
 }

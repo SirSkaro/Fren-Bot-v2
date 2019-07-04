@@ -3,17 +3,18 @@ package skaro.frenbot.invokers;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import discord4j.core.object.entity.Message;
+import reactor.core.Exceptions;
 import reactor.core.publisher.Mono;
-import skaro.frenbot.commands.CommandLibrary;
+import skaro.frenbot.commands.CommandFactory;
 import skaro.frenbot.commands.PointRewardCommand;
-import skaro.frenbot.commands.parsers.ArgumentParser;
+import skaro.frenbot.commands.parsers.TextParser;
 
 public class MessageCreateInvoker implements Invoker {
 
 	@Autowired
-	CommandLibrary library;
+	CommandFactory library;
 	@Autowired
-	ArgumentParser parser;
+	TextParser parser;
 	@Autowired
 	PointRewardCommand rewardCommand;
 	
@@ -23,10 +24,12 @@ public class MessageCreateInvoker implements Invoker {
 				.switchIfEmpty(rewardCommand.rewardPointsForMessage(input));
 	}
 	
-	private Mono<Message> respondToCommand(String input) {
-		return parser.getCommandName(input)
-				.flatMap(commandName -> library.getCommand(commandName))
-				.map(command -> command.execute(input))
+	private Mono<Message> respondToCommand(String messageContent) {
+		return parser.parseMessageContent(messageContent)
+				.flatMap(parsedText -> {
+					try { return library.createCommand(parsedText); }
+					catch (Exception e) { throw Exceptions.propagate(e); }})
+				.map(command -> command.execute())
 				.orElse(Mono.empty());
 	}
 

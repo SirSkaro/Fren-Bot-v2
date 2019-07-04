@@ -18,8 +18,12 @@ import discord4j.core.event.domain.lifecycle.ReadyEvent;
 import discord4j.core.event.domain.message.MessageCreateEvent;
 import discord4j.core.object.entity.Message;
 import skaro.frenbot.commands.Command;
-import skaro.frenbot.commands.CommandLibrary;
+import skaro.frenbot.commands.CommandFactory;
+import skaro.frenbot.commands.arguments.Argument;
 import skaro.frenbot.commands.parsers.ArgumentParser;
+import skaro.frenbot.commands.parsers.ObjectParser;
+import skaro.frenbot.commands.parsers.RegexParser;
+import skaro.frenbot.commands.parsers.TextParser;
 
 @Configuration
 public class FrenBotConfig {
@@ -51,22 +55,27 @@ public class FrenBotConfig {
 	
 	@Bean
 	@Scope(value = ConfigurableBeanFactory.SCOPE_SINGLETON)
-	public List<Command> getAllCommands() {
-		List<Command> commands = new ArrayList<>();
+	public List<Class<Command>> getAllCommands() {
+		List<Class<Command>> commands = new ArrayList<>();
 		return commands;
 	}
 	
 	@Bean
 	@Autowired
 	@Scope(value = ConfigurableBeanFactory.SCOPE_SINGLETON)
-	public CommandLibrary getCommandLibrary(List<Command> allCommands) {
-		return new CommandLibrary(allCommands);
+	public CommandFactory getCommandLibrary(List<Class<Command>> allCommands) {
+		return new CommandFactory(allCommands);
+	}
+	
+	@Scope(value = ConfigurableBeanFactory.SCOPE_SINGLETON)
+	public ObjectParser<Argument> getArgumentParser() {
+		return new ArgumentParser();
 	}
 	
 	@Autowired
 	@Scope(value = ConfigurableBeanFactory.SCOPE_SINGLETON)
-	public ArgumentParser getArgumentParser(@Value("${discord.prefix}") String prefix) {
-		return new ArgumentParser(prefix);
+	public TextParser getTextParser(@Value("${discord.prefix}") String prefix) {
+		return new RegexParser(prefix);
 	}
 	
 }
