@@ -5,6 +5,6 @@ import reactor.core.publisher.Mono;
 
 public interface PointRewardCommand {
 
-	Mono<Message> rewardPointsForMessage(String messageConent);
+	Mono<Message> rewardPointsForMessage(Message message);
 	
 }

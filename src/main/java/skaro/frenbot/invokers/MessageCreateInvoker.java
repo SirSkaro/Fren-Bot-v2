@@ -19,13 +19,13 @@ public class MessageCreateInvoker implements Invoker {
 	PointRewardCommand rewardCommand;
 	
 	@Override
-	public Mono<Message> respond(String input) {
-		return respondToCommand(input)
-				.switchIfEmpty(rewardCommand.rewardPointsForMessage(input));
+	public Mono<Message> respond(Message message) {
+		return respondToRequest(message)
+				.switchIfEmpty(rewardCommand.rewardPointsForMessage(message));
 	}
 	
-	private Mono<Message> respondToCommand(String messageContent) {
-		return parser.parseMessageContent(messageContent)
+	private Mono<Message> respondToRequest(Message message) {
+		return parser.parseMessageContent(message)
 				.flatMap(parsedText -> {
 					try { return library.createCommand(parsedText); }
 					catch (Exception e) { throw Exceptions.propagate(e); }})

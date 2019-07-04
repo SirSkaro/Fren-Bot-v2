@@ -4,6 +4,8 @@ import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import discord4j.core.object.entity.Message;
+
 public class RegexParser implements TextParser {
 
 	private String prefix;
@@ -13,22 +15,23 @@ public class RegexParser implements TextParser {
 	}
 	
 	@Override
-	public Optional<ParsedText> parseMessageContent(String messageContent) {
+	public Optional<ParsedText> parseMessageContent(Message message) {
 		String patternRegex = String.format("(%s)([a-zA-Z]+)[\\s]+([a-zA-Z\\-]*)", prefix);
 		Pattern expectedPattern = Pattern.compile(patternRegex);
-		Matcher matcher = expectedPattern.matcher(messageContent);
 		int commandGroupNumber = 2;
 		int argumentGroupNumber = 3;
 		
-		if(!matcher.find()) {
-			return Optional.empty();
-		}
-
+		return message.getContent()
+			.map(messageContent -> expectedPattern.matcher(messageContent))
+			.filter(matcher -> matcher.find())
+			.flatMap(matcher -> assembleParsedText(matcher, commandGroupNumber, argumentGroupNumber));
+	}
+	
+	private Optional<ParsedText> assembleParsedText(Matcher matcher, int commandGroupNumber, int argumentGroupNumber) {
 		try {
 			String command = matcher.group(commandGroupNumber);
 			String arguments = matcher.group(argumentGroupNumber);
-			ParsedText result = new ParsedText(command, arguments);
-			return Optional.of(result);
+			return Optional.of(new ParsedText(command, arguments));
 		} catch (Exception e) {
 			return Optional.empty();
 		}

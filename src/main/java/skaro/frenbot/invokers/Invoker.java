@@ -5,6 +5,6 @@ import reactor.core.publisher.Mono;
 
 public interface Invoker {
 
-	public Mono<Message> respond(String input);
+	public Mono<Message> respond(Message message);
 	
 }
