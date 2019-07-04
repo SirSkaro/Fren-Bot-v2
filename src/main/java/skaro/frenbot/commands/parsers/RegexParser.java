@@ -16,7 +16,7 @@ public class RegexParser implements TextParser {
 	
 	@Override
 	public Optional<ParsedText> parseMessageContent(Message message) {
-		String patternRegex = String.format("(%s)([a-zA-Z]+)[\\s]+([a-zA-Z\\-]*)", prefix);
+		String patternRegex = String.format("(%s)([a-zA-Z]+)[\\s]+([a-zA-Z0-9\\-<>@!]*)", prefix);
 		Pattern expectedPattern = Pattern.compile(patternRegex);
 		int commandGroupNumber = 2;
 		int argumentGroupNumber = 3;

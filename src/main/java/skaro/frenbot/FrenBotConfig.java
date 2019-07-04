@@ -19,8 +19,10 @@ import discord4j.core.event.domain.message.MessageCreateEvent;
 import discord4j.core.object.entity.Message;
 import skaro.frenbot.commands.Command;
 import skaro.frenbot.commands.CommandFactory;
+import skaro.frenbot.commands.PointRewardCommand;
 import skaro.frenbot.commands.arguments.Argument;
 import skaro.frenbot.commands.impl.CommandFactoryImpl;
+import skaro.frenbot.commands.impl.FixedRewardCommand;
 import skaro.frenbot.commands.parsers.ArgumentParser;
 import skaro.frenbot.commands.parsers.ObjectParser;
 import skaro.frenbot.commands.parsers.RegexParser;
@@ -77,6 +79,14 @@ public class FrenBotConfig {
 	@Scope(value = ConfigurableBeanFactory.SCOPE_SINGLETON)
 	public TextParser getTextParser(@Value("${discord.prefix}") String prefix) {
 		return new RegexParser(prefix);
+	}
+	
+	@Scope(value = ConfigurableBeanFactory.SCOPE_SINGLETON)
+	public PointRewardCommand getPointRewardCommand() {
+		PointRewardCommand command = new FixedRewardCommand();
+		command.setReceiver(null);
+		
+		return command;
 	}
 	
 }
