@@ -9,6 +9,5 @@ public interface Command {
 
 	Mono<Message> execute();
 	void setArguments(List<String> arguments);
-	String getName();
 	
 }

@@ -27,7 +27,7 @@ public class MessageCreateInvoker implements Invoker {
 	private Mono<Message> respondToRequest(Message message) {
 		return parser.parseMessageContent(message)
 				.flatMap(parsedText -> {
-					try { return library.createCommand(parsedText); }
+					try { return library.getCommandFor(parsedText); }
 					catch (Exception e) { throw Exceptions.propagate(e); }})
 				.map(command -> command.execute())
 				.orElse(Mono.empty());

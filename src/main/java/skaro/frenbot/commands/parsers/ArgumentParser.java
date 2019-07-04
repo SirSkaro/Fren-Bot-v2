@@ -14,7 +14,7 @@ public class ArgumentParser implements ObjectParser<Argument> {
 			
 			return argument;
 		} catch (Exception e) {
-			throw new ParserException(arguments);
+			throw new ParserException(arguments, e);
 		}
 	}
 

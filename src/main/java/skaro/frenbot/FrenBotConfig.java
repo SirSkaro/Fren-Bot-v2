@@ -1,7 +1,7 @@
 package skaro.frenbot;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -20,6 +20,7 @@ import discord4j.core.object.entity.Message;
 import skaro.frenbot.commands.Command;
 import skaro.frenbot.commands.CommandFactory;
 import skaro.frenbot.commands.arguments.Argument;
+import skaro.frenbot.commands.impl.CommandFactoryImpl;
 import skaro.frenbot.commands.parsers.ArgumentParser;
 import skaro.frenbot.commands.parsers.ObjectParser;
 import skaro.frenbot.commands.parsers.RegexParser;
@@ -55,16 +56,16 @@ public class FrenBotConfig {
 	
 	@Bean
 	@Scope(value = ConfigurableBeanFactory.SCOPE_SINGLETON)
-	public List<Class<Command>> getAllCommands() {
-		List<Class<Command>> commands = new ArrayList<>();
+	public Map<String, Class<Command>> getAllCommands() {
+		Map<String, Class<Command>> commands = new HashMap<>();
 		return commands;
 	}
 	
 	@Bean
 	@Autowired
 	@Scope(value = ConfigurableBeanFactory.SCOPE_SINGLETON)
-	public CommandFactory getCommandLibrary(List<Class<Command>> allCommands) {
-		return new CommandFactory(allCommands);
+	public CommandFactory getCommandLibrary(Map<String, Class<Command>> allCommands) {
+		return new CommandFactoryImpl(allCommands);
 	}
 	
 	@Scope(value = ConfigurableBeanFactory.SCOPE_SINGLETON)
