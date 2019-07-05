@@ -1,35 +1,27 @@
 package skaro.frenbot.commands.impl;
 
-import java.util.Arrays;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
 import skaro.frenbot.commands.Command;
 import skaro.frenbot.commands.CommandFactory;
-import skaro.frenbot.commands.parsers.ParsedText;
 
 public class CommandFactoryImpl implements CommandFactory {
 
-	private Map<String, Class<Command>> commands;
+	private Map<String, Command> allCommands;
 	
-	public CommandFactoryImpl(Map<String, Class<Command>> supportedCommands) {
-		commands = supportedCommands;
+	public CommandFactoryImpl(Map<String, Command> availableCommands) {
+		allCommands = availableCommands;
 	}
 	
 	@Override
-	public Optional<Command> getCommandFor(ParsedText parsedText) throws Exception {
-		if(!commands.containsKey(parsedText.getCommand())) {
+	public Optional<Command> getCommand(String commandName) {
+		if(!allCommands.containsKey(commandName)) {
 			return Optional.empty();
 		}
 		
-		Command command = commands.get(parsedText.getCommand()).getConstructor().newInstance();
-		command.setArguments(argumentsToList(parsedText.getArguments()));
+		Command command = allCommands.get(commandName);
 		return Optional.of(command);
-	}
-	
-	private List<String> argumentsToList(String arguments) {
-		return Arrays.asList(arguments.split(" "));
 	}
 	
 }

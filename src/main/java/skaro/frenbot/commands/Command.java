@@ -8,8 +8,7 @@ import skaro.frenbot.receivers.Receiver;
 
 public interface Command {
 
-	Mono<Message> execute(Message message);
-	void setArguments(List<String> arguments);
+	Mono<Message> execute(Message message, List<String> arguments);
 	void setReceiver(Receiver receiver);
 	
 }

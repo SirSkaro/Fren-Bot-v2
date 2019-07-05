@@ -8,26 +8,26 @@ import discord4j.core.object.entity.Message;
 
 public class RegexParser implements TextParser {
 
-	private String prefix;
+	private Pattern expectedPattern;
+	private int commandGroupNumber;
+	private int argumentGroupNumber;
 	
 	public RegexParser(String prefix) {
-		this.prefix = prefix;
+		String patternRegex = String.format("(%s)([a-zA-Z]+)([ a-zA-Z0-9\\-<>@!]*)", prefix);
+		expectedPattern = Pattern.compile(patternRegex);
+		commandGroupNumber = 2;
+		argumentGroupNumber = 3;
 	}
 	
 	@Override
 	public Optional<ParsedText> parseMessageContent(Message message) {
-		String patternRegex = String.format("(%s)([a-zA-Z]+)[\\s]+([a-zA-Z0-9\\-<>@!]*)", prefix);
-		Pattern expectedPattern = Pattern.compile(patternRegex);
-		int commandGroupNumber = 2;
-		int argumentGroupNumber = 3;
-		
 		return message.getContent()
 			.map(messageContent -> expectedPattern.matcher(messageContent))
 			.filter(matcher -> matcher.find())
-			.flatMap(matcher -> assembleParsedText(matcher, commandGroupNumber, argumentGroupNumber));
+			.flatMap(matcher -> assembleParsedText(matcher));
 	}
 	
-	private Optional<ParsedText> assembleParsedText(Matcher matcher, int commandGroupNumber, int argumentGroupNumber) {
+	private Optional<ParsedText> assembleParsedText(Matcher matcher) {
 		try {
 			String command = matcher.group(commandGroupNumber);
 			String arguments = matcher.group(argumentGroupNumber);

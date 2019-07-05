@@ -12,13 +12,8 @@ public class PingCommand implements Command {
 	private Receiver receiver;
 	
 	@Override
-	public Mono<Message> execute(Message message) {
+	public Mono<Message> execute(Message message, List<String> arguments) {
 		return receiver.process(null, message);
-	}
-
-	@Override
-	public void setArguments(List<String> arguments) {
-
 	}
 
 	@Override
