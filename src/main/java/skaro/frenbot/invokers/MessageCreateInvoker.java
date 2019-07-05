@@ -24,12 +24,10 @@ public class MessageCreateInvoker implements Invoker {
 	}
 	
 	private Mono<Message> respondToRequest(Message message) {
-		
 		return parser.parseMessageContent(message)
 				.flatMap(parsedText -> factory.getCommand(parsedText.getCommand())
 						.map(command -> command.execute(message, parsedText.getArgumentsList())))
 				.orElseGet(Mono::empty);
-		
 	}
 	
 

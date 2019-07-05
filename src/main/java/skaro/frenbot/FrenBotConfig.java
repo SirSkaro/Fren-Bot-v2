@@ -18,22 +18,20 @@ import discord4j.core.event.domain.lifecycle.ReadyEvent;
 import discord4j.core.event.domain.message.MessageCreateEvent;
 import skaro.frenbot.commands.Command;
 import skaro.frenbot.commands.CommandFactory;
-import skaro.frenbot.commands.PointRewardCommand;
 import skaro.frenbot.commands.arguments.Argument;
 import skaro.frenbot.commands.impl.CommandFactoryImpl;
-import skaro.frenbot.commands.impl.FixedRewardCommand;
-import skaro.frenbot.commands.impl.PingCommand;
 import skaro.frenbot.commands.parsers.ArgumentParser;
 import skaro.frenbot.commands.parsers.ObjectParser;
 import skaro.frenbot.commands.parsers.RegexParser;
 import skaro.frenbot.commands.parsers.TextParser;
 import skaro.frenbot.invokers.Invoker;
 import skaro.frenbot.invokers.MessageCreateInvoker;
-import skaro.frenbot.receivers.PingReceiver;
-import skaro.frenbot.receivers.PointAwardReceiver;
 
 @Configuration
 public class FrenBotConfig {
+	
+	@Autowired
+	CommandConfig commandConfig;
 
 	@Bean
 	public RestTemplate getRestTemplate(RestTemplateBuilder builder) {
@@ -63,7 +61,7 @@ public class FrenBotConfig {
 	@Scope(value = ConfigurableBeanFactory.SCOPE_SINGLETON)
 	public Map<String, Command> getAllCommands() {
 		Map<String, Command> commands = new HashMap<>();
-		commands.put("ping", this.getPingCommand());
+		commands.put("ping", commandConfig.getPingCommand());
 		
 		return commands;
 	}
@@ -85,26 +83,6 @@ public class FrenBotConfig {
 	@Scope(value = ConfigurableBeanFactory.SCOPE_SINGLETON)
 	public TextParser getTextParser(@Value("${discord.prefix}") String prefix) {
 		return new RegexParser(prefix);
-	}
-	
-	@Bean
-	@Scope(value = ConfigurableBeanFactory.SCOPE_SINGLETON)
-	public PointRewardCommand getPointRewardCommand() {
-		PointRewardCommand command = new FixedRewardCommand();
-		command.setReceiver(new PointAwardReceiver());
-		return command;
-	}
-	
-	@Bean
-	public PingReceiver getPingReceiver() {
-		return new PingReceiver();
-	}
-	
-	@Bean
-	public PingCommand getPingCommand() {
-		PingCommand command = new PingCommand();
-		command.setReceiver(getPingReceiver());
-		return command;
 	}
 	
 	@Bean
