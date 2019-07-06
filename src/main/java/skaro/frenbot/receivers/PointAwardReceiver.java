@@ -14,6 +14,7 @@ import discord4j.core.object.entity.User;
 import discord4j.core.object.util.Snowflake;
 import discord4j.core.spec.EmbedCreateSpec;
 import discord4j.core.spec.MessageCreateSpec;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import skaro.frenbot.commands.arguments.Argument;
 import skaro.frenbot.commands.arguments.PointAmountArgument;
@@ -36,7 +37,7 @@ public class PointAwardReceiver implements Receiver {
 		return Mono.justOrEmpty(message.getAuthor())
 				.map(author -> addPointsToUser(author, pointsToReward))
 				.filter(newAwards -> !newAwards.getBadges().isEmpty())
-				.flatMap(newAwards -> createAwardMessage(newAwards, message))
+				.flatMap(newAwards -> processAwards(newAwards, message))
 				.flatMap(messageSpec -> message.getChannel()
 						.flatMap(channel -> channel.createMessage(messageSpec)));
 	}
@@ -56,14 +57,29 @@ public class PointAwardReceiver implements Receiver {
 		return String.format("%s/user/discord/%d/points/add", baseURI, user.getId().asLong());
 	}
 	
-	private Mono<Consumer<MessageCreateSpec>> createAwardMessage(NewAwardsDTO newAwards, Message message) {
+	
+	private Mono<Consumer<MessageCreateSpec>> processAwards(NewAwardsDTO newAwards, Message message) {
 		List<BadgeDTO> sortedBadges = sortAscending(newAwards.getBadges());
 		BadgeDTO mostValuedBadge = sortedBadges.get(sortedBadges.size() - 1);
+		User author = message.getAuthor().get();
 		
 		return message.getGuild()
+				.flatMap(guild -> assignBadgeRoles(sortedBadges, guild, author))
 				.flatMap(guild -> getRoleForBadge(mostValuedBadge, guild)
-						.map(role -> createAwardEmbed(sortedBadges, message.getAuthor().get(), role)))
+						.map(role -> createAwardEmbed(sortedBadges, author, role)))
 				.map(embedConsumer -> (MessageCreateSpec spec) -> spec.setEmbed(embedConsumer));
+	}
+	
+	private List<BadgeDTO> sortAscending(List<BadgeDTO> badges) {
+		badges.sort( (BadgeDTO badge1, BadgeDTO badge2) -> badge1.getPointThreshold().compareTo(badge2.getPointThreshold()) );
+		return badges;
+	}
+	
+	private Mono<Guild> assignBadgeRoles(List<BadgeDTO> badges, Guild guild, User author) {
+		return author.asMember(guild.getId())
+				.flatMap(member -> Flux.fromIterable(badges)
+						.flatMap(badge -> member.addRole(Snowflake.of(badge.getDiscordRoleId()), badge.getDescription()))
+						.then(Mono.just(guild)));
 	}
 	
 	private Consumer<EmbedCreateSpec> createAwardEmbed(List<BadgeDTO> sortedBadges, User author, Role role) {
@@ -75,11 +91,6 @@ public class PointAwardReceiver implements Receiver {
 		embedSpec = embedSpec.andThen(spec -> spec.setColor(role.getColor()));
 		
 		return embedSpec;
-	}
-	
-	private List<BadgeDTO> sortAscending(List<BadgeDTO> badges) {
-		badges.sort( (BadgeDTO badge1, BadgeDTO badge2) -> badge1.getPointThreshold().compareTo(badge2.getPointThreshold()) );
-		return badges;
 	}
 	
 	private String createDescription(List<BadgeDTO> badges, User user) {
