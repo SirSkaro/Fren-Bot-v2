@@ -34,12 +34,16 @@ public class PointAwardReceiver implements Receiver {
 		PointsDTO pointsToReward = createRequest((PointAmountArgument)argument);
 		
 		return Mono.justOrEmpty(message.getAuthor())
-				.map(author -> constructEndpoint(author))
-				.map(endpoint -> restTemplate.postForObject(endpoint, pointsToReward, NewAwardsDTO.class))
+				.map(author -> addPointsToUser(author, pointsToReward))
 				.filter(newAwards -> !newAwards.getBadges().isEmpty())
-				.map(newAwards -> createAwardMessage(newAwards, message))
+				.flatMap(newAwards -> createAwardMessage(newAwards, message))
 				.flatMap(messageSpec -> message.getChannel()
 						.flatMap(channel -> channel.createMessage(messageSpec)));
+	}
+	
+	private NewAwardsDTO addPointsToUser(User author, PointsDTO pointsToReward) {
+		String endpoint = constructEndpoint(author);
+		return restTemplate.postForObject(endpoint, pointsToReward, NewAwardsDTO.class);
 	}
 	
 	private PointsDTO createRequest(PointAmountArgument pointsToReward) {
@@ -52,21 +56,23 @@ public class PointAwardReceiver implements Receiver {
 		return String.format("%s/user/discord/%d/points/add", baseURI, user.getId().asLong());
 	}
 	
-	private Consumer<MessageCreateSpec> createAwardMessage(NewAwardsDTO newAwards, Message message) {
-		Consumer<EmbedCreateSpec> embedSpec = createAwardEmbed(newAwards, message);
-		Consumer<MessageCreateSpec> messageSpec = spec -> spec.setEmbed(embedSpec);
-		
-		return messageSpec;
-	}
-	
-	private Consumer<EmbedCreateSpec> createAwardEmbed(NewAwardsDTO newAwards, Message message) {
+	private Mono<Consumer<MessageCreateSpec>> createAwardMessage(NewAwardsDTO newAwards, Message message) {
 		List<BadgeDTO> sortedBadges = sortAscending(newAwards.getBadges());
 		BadgeDTO mostValuedBadge = sortedBadges.get(sortedBadges.size() - 1);
 		
+		return message.getGuild()
+				.flatMap(guild -> getRoleForBadge(mostValuedBadge, guild)
+						.map(role -> createAwardEmbed(sortedBadges, message.getAuthor().get(), role)))
+				.map(embedConsumer -> (MessageCreateSpec spec) -> spec.setEmbed(embedConsumer));
+	}
+	
+	private Consumer<EmbedCreateSpec> createAwardEmbed(List<BadgeDTO> sortedBadges, User author, Role role) {
+		BadgeDTO mostValuedBadge = sortedBadges.get(sortedBadges.size() - 1);
+		
 		Consumer<EmbedCreateSpec> embedSpec = spec -> spec.setThumbnail(mostValuedBadge.getImageUri());
-		embedSpec = embedSpec.andThen(spec -> spec.setDescription(constructDescription(sortedBadges, message.getAuthor().get())));
+		embedSpec = embedSpec.andThen(spec -> spec.setDescription(createDescription(sortedBadges, author)));
 		embedSpec = embedSpec.andThen(spec -> spec.setTitle((sortedBadges.size() > 1 ? "Badges Awarded" : "Badge Awarded") + "! :tada:"));
-		embedSpec = embedSpec.andThen(spec -> spec.setColor(getRoleForBadge(mostValuedBadge, message.getGuild().block()).getColor()));
+		embedSpec = embedSpec.andThen(spec -> spec.setColor(role.getColor()));
 		
 		return embedSpec;
 	}
@@ -76,7 +82,7 @@ public class PointAwardReceiver implements Receiver {
 		return badges;
 	}
 	
-	private String constructDescription(List<BadgeDTO> badges, User user) {
+	private String createDescription(List<BadgeDTO> badges, User user) {
 		StringBuilder builder = new StringBuilder();
 		
 		builder.append("Congratulations "+ user.getUsername() +"! You've earned:");
@@ -88,8 +94,8 @@ public class PointAwardReceiver implements Receiver {
 		return builder.toString();
 	}
 	
-	private Role getRoleForBadge(BadgeDTO badge, Guild guild) {
-		return guild.getRoleById(Snowflake.of(badge.getDiscordRoleId())).block();
+	private Mono<Role> getRoleForBadge(BadgeDTO badge, Guild guild) {
+		return guild.getRoleById(Snowflake.of(badge.getDiscordRoleId()));
 	}
 
 }
