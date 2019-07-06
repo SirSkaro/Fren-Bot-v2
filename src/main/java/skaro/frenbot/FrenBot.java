@@ -4,6 +4,7 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
+import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 
 import discord4j.core.DiscordClient;
@@ -18,7 +19,7 @@ public class FrenBot {
 	}
 
 	@Bean
-	@Order(value = 3)
+	@Order(value = Ordered.LOWEST_PRECEDENCE)
 	public CommandLineRunner registerEventCreateListener(DiscordClient discordClient, MessageCreateInvoker invoker) throws Exception {
 		return args -> discordClient.getEventDispatcher().on(MessageCreateEvent.class)
 				.map(event -> event.getMessage())
@@ -28,7 +29,7 @@ public class FrenBot {
 	}
 	
 	@Bean
-	@Order(value = 2)
+	@Order(value = Ordered.HIGHEST_PRECEDENCE)
 	public CommandLineRunner login(DiscordClient discordClient) throws Exception {
 		return args -> discordClient.login().block(); 
 		
