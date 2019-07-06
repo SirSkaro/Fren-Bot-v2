@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.client.RestTemplate;
 
+import discord4j.core.DiscordClient;
 import discord4j.core.object.entity.Guild;
 import discord4j.core.object.entity.Message;
 import discord4j.core.object.entity.Role;
@@ -17,7 +18,7 @@ import discord4j.core.spec.MessageCreateSpec;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import skaro.frenbot.commands.arguments.Argument;
-import skaro.frenbot.commands.arguments.PointAmountArgument;
+import skaro.frenbot.commands.arguments.PointAwardArgument;
 import skaro.frenbot.receivers.dtos.BadgeDTO;
 import skaro.frenbot.receivers.dtos.DTOBuilder;
 import skaro.frenbot.receivers.dtos.NewAwardsDTO;
@@ -27,27 +28,30 @@ public class PointAwardReceiver implements Receiver {
 	
 	@Autowired
 	private RestTemplate restTemplate;
+	@Autowired
+	private DiscordClient discordClient;
 	@Value("${pokeaimpi.base}")
 	private String baseURI;
 	
 	@Override
 	public Mono<Message> process(Argument argument, Message message) {
-		PointsDTO pointsToReward = createRequest((PointAmountArgument)argument);
+		PointAwardArgument awardArgument = (PointAwardArgument)argument;
+		PointsDTO pointsToReward = createRequest(awardArgument);
 		
-		return Mono.justOrEmpty(message.getAuthor())
-				.map(author -> addPointsToUser(author, pointsToReward))
-				.filter(newAwards -> !newAwards.getBadges().isEmpty())
-				.flatMap(newAwards -> processAwards(newAwards, message))
-				.flatMap(messageSpec -> message.getChannel()
-						.flatMap(channel -> channel.createMessage(messageSpec)));
+		return discordClient.getUserById(Snowflake.of(awardArgument.getUserDiscordId()))
+				.flatMap(user -> addPointsToUser(user, pointsToReward)
+						.filter(newAwards -> !newAwards.getBadges().isEmpty())
+						.flatMap(newAwards -> processAwards(newAwards, message, user))
+						.flatMap(messageSpec -> message.getChannel()
+								.flatMap(channel -> channel.createMessage(messageSpec))));
 	}
 	
-	private NewAwardsDTO addPointsToUser(User author, PointsDTO pointsToReward) {
-		String endpoint = constructEndpoint(author);
-		return restTemplate.postForObject(endpoint, pointsToReward, NewAwardsDTO.class);
+	private Mono<NewAwardsDTO> addPointsToUser(User user, PointsDTO pointsToReward) {
+		String endpoint = constructEndpoint(user);
+		return Mono.just(restTemplate.postForObject(endpoint, pointsToReward, NewAwardsDTO.class));
 	}
 	
-	private PointsDTO createRequest(PointAmountArgument pointsToReward) {
+	private PointsDTO createRequest(PointAwardArgument pointsToReward) {
 		return DTOBuilder.of(PointsDTO::new)
 				.with(PointsDTO::setAmount, pointsToReward.getAmount())
 				.build();
@@ -58,15 +62,14 @@ public class PointAwardReceiver implements Receiver {
 	}
 	
 	
-	private Mono<Consumer<MessageCreateSpec>> processAwards(NewAwardsDTO newAwards, Message message) {
+	private Mono<Consumer<MessageCreateSpec>> processAwards(NewAwardsDTO newAwards, Message message, User user) {
 		List<BadgeDTO> sortedBadges = sortAscending(newAwards.getBadges());
 		BadgeDTO mostValuedBadge = sortedBadges.get(sortedBadges.size() - 1);
-		User author = message.getAuthor().get();
 		
 		return message.getGuild()
-				.flatMap(guild -> assignBadgeRoles(sortedBadges, guild, author))
+				.flatMap(guild -> assignBadgeRoles(sortedBadges, guild, user))
 				.flatMap(guild -> getRoleForBadge(mostValuedBadge, guild)
-						.map(role -> createAwardEmbed(sortedBadges, author, role)))
+						.map(role -> createAwardEmbed(sortedBadges, user, role)))
 				.map(embedConsumer -> (MessageCreateSpec spec) -> spec.setEmbed(embedConsumer));
 	}
 	
@@ -75,18 +78,18 @@ public class PointAwardReceiver implements Receiver {
 		return badges;
 	}
 	
-	private Mono<Guild> assignBadgeRoles(List<BadgeDTO> badges, Guild guild, User author) {
-		return author.asMember(guild.getId())
+	private Mono<Guild> assignBadgeRoles(List<BadgeDTO> badges, Guild guild, User user) {
+		return user.asMember(guild.getId())
 				.flatMap(member -> Flux.fromIterable(badges)
 						.flatMap(badge -> member.addRole(Snowflake.of(badge.getDiscordRoleId()), badge.getDescription()))
 						.then(Mono.just(guild)));
 	}
 	
-	private Consumer<EmbedCreateSpec> createAwardEmbed(List<BadgeDTO> sortedBadges, User author, Role role) {
+	private Consumer<EmbedCreateSpec> createAwardEmbed(List<BadgeDTO> sortedBadges, User user, Role role) {
 		BadgeDTO mostValuedBadge = sortedBadges.get(sortedBadges.size() - 1);
 		
 		Consumer<EmbedCreateSpec> embedSpec = spec -> spec.setThumbnail(mostValuedBadge.getImageUri());
-		embedSpec = embedSpec.andThen(spec -> spec.setDescription(createDescription(sortedBadges, author)));
+		embedSpec = embedSpec.andThen(spec -> spec.setDescription(createDescription(sortedBadges, user)));
 		embedSpec = embedSpec.andThen(spec -> spec.setTitle((sortedBadges.size() > 1 ? "Badges Awarded" : "Badge Awarded") + "! :tada:"));
 		embedSpec = embedSpec.andThen(spec -> spec.setColor(role.getColor()));
 		

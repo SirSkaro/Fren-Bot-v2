@@ -3,7 +3,7 @@ package skaro.frenbot.commands.impl;
 import discord4j.core.object.entity.Message;
 import reactor.core.publisher.Mono;
 import skaro.frenbot.commands.PointRewardCommand;
-import skaro.frenbot.commands.arguments.PointAmountArgument;
+import skaro.frenbot.commands.arguments.PointAwardArgument;
 import skaro.frenbot.receivers.Receiver;
 
 public class FixedRewardCommand implements PointRewardCommand {
@@ -14,7 +14,7 @@ public class FixedRewardCommand implements PointRewardCommand {
 	public Mono<Message> rewardPointsForMessage(Message message) {
 		return message.getAuthor()
 				.map(author -> author.getId().asString())
-				.map(id -> new PointAmountArgument(1, id))
+				.map(id -> new PointAwardArgument(1, id))
 				.map(pointAmount -> receiver.process(pointAmount, message))
 				.orElse(Mono.empty());
 	}
