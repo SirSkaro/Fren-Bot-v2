@@ -17,8 +17,8 @@ import discord4j.core.DiscordClientBuilder;
 import discord4j.core.event.domain.lifecycle.ReadyEvent;
 import skaro.frenbot.commands.Command;
 import skaro.frenbot.commands.CommandFactory;
+import skaro.frenbot.commands.CommandFactoryImpl;
 import skaro.frenbot.commands.arguments.Argument;
-import skaro.frenbot.commands.impl.CommandFactoryImpl;
 import skaro.frenbot.commands.parsers.ArgumentParser;
 import skaro.frenbot.commands.parsers.ObjectParser;
 import skaro.frenbot.commands.parsers.RegexParser;
@@ -53,6 +53,7 @@ public class FrenBotConfig {
 	public Map<String, Command> getAllCommands() {
 		Map<String, Command> commands = new HashMap<>();
 		commands.put("ping", commandConfig.getPingCommand());
+		commands.put("preward", commandConfig.getPointAwardCommand());
 		
 		return commands;
 	}
@@ -65,8 +66,8 @@ public class FrenBotConfig {
 	
 	@Bean
 	@Scope(value = ConfigurableBeanFactory.SCOPE_SINGLETON)
-	public ObjectParser<Argument> getArgumentParser() {
-		return new ArgumentParser();
+	public ObjectParser getArgumentParser() {
+		return new ArgumentParser<Argument>();
 	}
 	
 	@Bean

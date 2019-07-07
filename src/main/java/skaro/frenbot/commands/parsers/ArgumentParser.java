@@ -1,14 +1,16 @@
 package skaro.frenbot.commands.parsers;
 
+import java.util.List;
+
 import org.kohsuke.args4j.CmdLineParser;
 
 import skaro.frenbot.commands.arguments.Argument;
 
-public class ArgumentParser implements ObjectParser<Argument> {
+public class ArgumentParser <T extends Argument> implements ObjectParser<T> {
 	
-	public Argument parse(String[] arguments, Class<Argument> clazz) throws ParserException {
+	public T parse(List<String> arguments, Class<T> clazz) throws ParserException {
 		try {
-			Argument argument = clazz.getConstructor().newInstance();
+			T argument = clazz.getConstructor().newInstance();
 			CmdLineParser parser = new CmdLineParser(argument);
 			parser.parseArgument(arguments);
 			

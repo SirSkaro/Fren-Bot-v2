@@ -6,9 +6,10 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Scope;
 
+import skaro.frenbot.commands.FixedRewardCommand;
+import skaro.frenbot.commands.PingCommand;
+import skaro.frenbot.commands.PointAwardCommand;
 import skaro.frenbot.commands.PointRewardCommand;
-import skaro.frenbot.commands.impl.FixedRewardCommand;
-import skaro.frenbot.commands.impl.PingCommand;
 
 @Configuration
 public class CommandConfig {
@@ -20,6 +21,13 @@ public class CommandConfig {
 	public PingCommand getPingCommand() {
 		PingCommand command = new PingCommand();
 		command.setReceiver(receiverConfig.getPingReceiver());
+		return command;
+	}
+	
+	@Bean
+	public PointAwardCommand getPointAwardCommand() {
+		PointAwardCommand command = new PointAwardCommand();
+		command.setReceiver(receiverConfig.getPointAwardReceiver());
 		return command;
 	}
 	

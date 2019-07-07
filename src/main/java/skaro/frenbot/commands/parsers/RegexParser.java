@@ -31,7 +31,7 @@ public class RegexParser implements TextParser {
 		try {
 			String command = matcher.group(commandGroupNumber);
 			String arguments = matcher.group(argumentGroupNumber);
-			return Optional.of(new ParsedText(command, arguments));
+			return Optional.of(new ParsedText(command.trim(), arguments.trim()));
 		} catch (Exception e) {
 			return Optional.empty();
 		}

@@ -1,10 +1,7 @@
-package skaro.frenbot.commands.impl;
+package skaro.frenbot.commands;
 
 import java.util.Map;
 import java.util.Optional;
-
-import skaro.frenbot.commands.Command;
-import skaro.frenbot.commands.CommandFactory;
 
 public class CommandFactoryImpl implements CommandFactory {
 

@@ -1,10 +1,9 @@
-package skaro.frenbot.commands.impl;
+package skaro.frenbot.commands;
 
 import java.util.List;
 
 import discord4j.core.object.entity.Message;
 import reactor.core.publisher.Mono;
-import skaro.frenbot.commands.Command;
 import skaro.frenbot.receivers.Receiver;
 
 public class PingCommand implements Command {

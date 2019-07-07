@@ -1,8 +1,7 @@
-package skaro.frenbot.commands.impl;
+package skaro.frenbot.commands;
 
 import discord4j.core.object.entity.Message;
 import reactor.core.publisher.Mono;
-import skaro.frenbot.commands.PointRewardCommand;
 import skaro.frenbot.commands.arguments.PointAwardArgument;
 import skaro.frenbot.receivers.Receiver;
 
