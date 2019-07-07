@@ -2,8 +2,8 @@ package skaro.frenbot.commands.parsers;
 
 import java.util.List;
 
-public interface ObjectParser<T> {
+public interface ObjectParser {
 
-	T parse(List<String> arguments, Class<T> clazz) throws ParserException;
+	<T> T parse(List<String> arguments, Class<T> clazz) throws ParserException;
 	
 }

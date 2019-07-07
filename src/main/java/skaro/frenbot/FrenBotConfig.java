@@ -18,7 +18,6 @@ import discord4j.core.event.domain.lifecycle.ReadyEvent;
 import skaro.frenbot.commands.Command;
 import skaro.frenbot.commands.CommandFactory;
 import skaro.frenbot.commands.CommandFactoryImpl;
-import skaro.frenbot.commands.arguments.Argument;
 import skaro.frenbot.commands.parsers.ArgumentParser;
 import skaro.frenbot.commands.parsers.ObjectParser;
 import skaro.frenbot.commands.parsers.RegexParser;
@@ -67,7 +66,7 @@ public class FrenBotConfig {
 	@Bean
 	@Scope(value = ConfigurableBeanFactory.SCOPE_SINGLETON)
 	public ObjectParser getArgumentParser() {
-		return new ArgumentParser<Argument>();
+		return new ArgumentParser();
 	}
 	
 	@Bean

@@ -14,7 +14,7 @@ public class PointAwardCommand implements Command {
 
 	private Receiver receiver;
 	@Autowired
-	ObjectParser<PointAwardArgument> parser;
+	ObjectParser parser;
 	
 	@Override
 	public Mono<Message> execute(Message message, List<String> arguments) {
