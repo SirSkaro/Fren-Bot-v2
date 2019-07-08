@@ -2,6 +2,7 @@ package skaro.frenbot.commands.parsers;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class ParsedText {
 
@@ -22,7 +23,9 @@ public class ParsedText {
 	}
 	
 	public List<String> getArgumentsList() {
-		return Arrays.asList(arguments.split(" "));
+		return Arrays.stream(arguments.split("\\s+"))
+				.map(argument -> argument.trim())
+				.collect(Collectors.toList());
 	}
 	
 }

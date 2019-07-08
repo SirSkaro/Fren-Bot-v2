@@ -11,7 +11,7 @@ public class ParserException extends RuntimeException {
 	}
 	
 	public ParserException(List<String> arguments, Exception e) {
-		super("Exception "+ e.getClass().getSimpleName() +" - Could not parse the string: "+ String.join(" ", arguments));
+		super("Exception "+ e.getClass().getSimpleName() +" - Could not parse the string: "+ String.join(",", arguments));
 	}
 
 }
