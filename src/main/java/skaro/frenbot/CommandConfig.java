@@ -9,7 +9,7 @@ import org.springframework.context.annotation.Scope;
 import skaro.frenbot.commands.FixedRewardCommand;
 import skaro.frenbot.commands.PingCommand;
 import skaro.frenbot.commands.PointAwardCommand;
-import skaro.frenbot.commands.PointRewardCommand;
+import skaro.frenbot.commands.PointListenerCommand;
 
 @Configuration
 public class CommandConfig {
@@ -33,9 +33,9 @@ public class CommandConfig {
 	
 	@Bean
 	@Scope(value = ConfigurableBeanFactory.SCOPE_SINGLETON)
-	public PointRewardCommand getPointRewardCommand() {
-		PointRewardCommand command = new FixedRewardCommand();
-		command.setReceiver(receiverConfig.getPointAwardReceiver());
+	public PointListenerCommand getPointRewardCommand() {
+		PointListenerCommand command = new FixedRewardCommand();
+		command.setReceiver(receiverConfig.getSilentPointAwardReceiver());
 		return command;
 	}
 	

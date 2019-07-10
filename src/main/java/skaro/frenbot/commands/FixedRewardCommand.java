@@ -5,7 +5,7 @@ import reactor.core.publisher.Mono;
 import skaro.frenbot.commands.arguments.PointAwardArgument;
 import skaro.frenbot.receivers.Receiver;
 
-public class FixedRewardCommand implements PointRewardCommand {
+public class FixedRewardCommand implements PointListenerCommand {
 
 	private Receiver receiver;
 

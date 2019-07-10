@@ -5,7 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import discord4j.core.object.entity.Message;
 import reactor.core.publisher.Mono;
 import skaro.frenbot.commands.CommandFactory;
-import skaro.frenbot.commands.PointRewardCommand;
+import skaro.frenbot.commands.PointListenerCommand;
 import skaro.frenbot.commands.parsers.TextParser;
 
 public class MessageCreateInvoker implements Invoker {
@@ -15,7 +15,7 @@ public class MessageCreateInvoker implements Invoker {
 	@Autowired
 	TextParser parser;
 	@Autowired
-	PointRewardCommand rewardCommand;
+	PointListenerCommand rewardCommand;
 	
 	@Override
 	public Mono<Message> respond(Message message) {
