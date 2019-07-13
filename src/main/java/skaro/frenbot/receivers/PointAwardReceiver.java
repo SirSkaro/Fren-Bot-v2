@@ -29,7 +29,8 @@ public class PointAwardReceiver implements Receiver {
 	public Mono<Message> process(Argument argument, Message message) {
 		PointAwardArgument awardArgument = (PointAwardArgument)argument;
 
-		return discordService.getUserById(awardArgument.getUserDiscordId())
+		return discordService.notifyRequestRecieved(message)
+				.then(discordService.getUserById(awardArgument.getUserDiscordId()))
 				.flatMap(user -> apiService.addPointsToUser(user, awardArgument.getAmount())
 						.flatMap(newAwards -> processAwards(newAwards, awardArgument, user))
 						.flatMap(messageSpec -> discordService.replyToMessage(message, messageSpec)));
@@ -46,9 +47,8 @@ public class PointAwardReceiver implements Receiver {
 	private Consumer<EmbedCreateSpec> createConfirmationMessage(NewAwardsDTO newAwards, PointAwardArgument pointAward, Member user) {
 		String rewardTitle = String.format(":white_check_mark: Rewarded %d points to %s", pointAward.getAmount(), user.getDisplayName() );
 		Consumer<EmbedCreateSpec> embedSpec = spec -> spec.setTitle(rewardTitle);
-		embedSpec = embedSpec.andThen(spec -> spec.setColor(Color.GREEN));
-		embedSpec = embedSpec.andThen(addBadgesToMessage(embedSpec, newAwards, user));
-		return embedSpec;
+		return embedSpec.andThen(spec -> spec.setColor(Color.GREEN))
+				.andThen(addBadgesToMessage(embedSpec, newAwards, user));
 	}
 	
 	private Consumer<EmbedCreateSpec> addBadgesToMessage(Consumer<EmbedCreateSpec> embedSpec, NewAwardsDTO newAwards, Member user) {
@@ -58,9 +58,8 @@ public class PointAwardReceiver implements Receiver {
 		}
 		
 		BadgeDTO mostValuedBadge = sortedBadges.get(sortedBadges.size() - 1);
-		embedSpec = embedSpec.andThen(spec -> spec.setThumbnail(mostValuedBadge.getImageUri()));
-		embedSpec = embedSpec.andThen(spec -> spec.setDescription(createBadgeList(sortedBadges, user)));
-		return embedSpec;
+		return embedSpec.andThen(spec -> spec.setThumbnail(mostValuedBadge.getImageUri()))
+				.andThen(spec -> spec.setDescription(createBadgeList(sortedBadges, user)));
 	}
 	
 	private String createBadgeList(List<BadgeDTO> sortedBadges, Member user) {

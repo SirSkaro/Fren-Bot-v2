@@ -10,6 +10,8 @@ import discord4j.core.object.entity.Guild;
 import discord4j.core.object.entity.Member;
 import discord4j.core.object.entity.Message;
 import discord4j.core.object.entity.Role;
+import discord4j.core.object.util.Permission;
+import discord4j.core.object.util.PermissionSet;
 import discord4j.core.object.util.Snowflake;
 import discord4j.core.spec.MessageCreateSpec;
 import reactor.core.publisher.Flux;
@@ -46,6 +48,19 @@ public class DiscordServiceImpl implements DiscordService {
 	public Mono<Role> getRoleForBadge(BadgeDTO badge) {
 		Snowflake discordId = Snowflake.of(badge.getDiscordRoleId());
 		return server.getRoleById(discordId);
+	}
+
+	@Override
+	public Mono<Void> notifyRequestRecieved(Message message) {
+		return message.getChannel()
+				.flatMap(channel -> channel.type());
+	}
+
+	@Override
+	public Mono<Boolean> authorHasPermission(Message message, Permission permission) {
+		return message.getAuthorAsMember()
+			.flatMap(member -> member.getBasePermissions())
+			.map(permissions -> permissions.containsAll(PermissionSet.of(permission)));
 	}
 
 }
