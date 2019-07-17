@@ -12,6 +12,7 @@ import skaro.frenbot.commands.arguments.PointAwardArgument;
 import skaro.frenbot.commands.parsers.ObjectParser;
 import skaro.frenbot.receivers.Receiver;
 
+@RequireDiscordPermission(permission = Permission.ADMINISTRATOR)
 public class PointAwardCommand implements Command {
 
 	private Receiver receiver;
@@ -19,7 +20,6 @@ public class PointAwardCommand implements Command {
 	private ObjectParser parser;
 	
 	@Override
-	@RequireDiscordPermission(permission = Permission.ADMINISTRATOR)
 	public Mono<Message> execute(Message message, List<String> arguments) {
 		PointAwardArgument argument = parser.parse(arguments, PointAwardArgument.class);
 		return receiver.process(argument, message);

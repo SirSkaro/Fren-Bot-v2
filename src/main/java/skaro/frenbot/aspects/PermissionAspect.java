@@ -25,7 +25,7 @@ public class PermissionAspect {
 	@Autowired
 	DiscordService discordService;
 
-	@Around("@annotation(RequireDiscordPermission)")
+	@Around("execution(* (@skaro.frenbot.aspects.RequireDiscordPermission skaro.frenbot.commands.*Command).execute(..))")
 	public Object requireDiscordPermission(ProceedingJoinPoint joinPoint) throws Throwable {
 		RequireDiscordPermission requiredPermission = getAnnotation(joinPoint);
 		Permission permission = requiredPermission.permission();
@@ -38,12 +38,10 @@ public class PermissionAspect {
 	}
 	
 	private RequireDiscordPermission getAnnotation(ProceedingJoinPoint joinPoint) throws Throwable {
-		MethodSignature signature = (MethodSignature) joinPoint.getSignature();
-        Method method = joinPoint.getTarget()
-           .getClass()
-           .getMethod(signature.getMethod().getName(), signature.getMethod().getParameterTypes());
-        
-        return method.getAnnotation(RequireDiscordPermission.class);
+		MethodSignature signature = (MethodSignature)(joinPoint.getSignature());
+        Method method = signature.getMethod();
+        Class<?> declaringClass = method.getDeclaringClass();
+        return declaringClass.getAnnotation(RequireDiscordPermission.class);
 	}
 	
 	@SuppressWarnings("unchecked")

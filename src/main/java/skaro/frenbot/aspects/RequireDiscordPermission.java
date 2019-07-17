@@ -7,7 +7,7 @@ import java.lang.annotation.Target;
 
 import discord4j.core.object.util.Permission;
 
-@Target(ElementType.METHOD)
+@Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface RequireDiscordPermission {
 	Permission permission();
