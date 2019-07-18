@@ -9,6 +9,7 @@ import org.springframework.core.annotation.Order;
 
 import discord4j.core.DiscordClient;
 import discord4j.core.event.domain.message.MessageCreateEvent;
+import reactor.core.publisher.Mono;
 import skaro.frenbot.invokers.MessageCreateInvoker;
 
 @SpringBootApplication
@@ -25,6 +26,7 @@ public class FrenBot {
 				.map(event -> event.getMessage())
 				.filter(message -> message.getAuthor().map(user -> !user.isBot()).orElse(false))
 				.flatMap(message -> invoker.respond(message))
+				.onErrorResume(throwable -> Mono.empty())
 				.subscribe(event -> System.out.println("event handled"));
 	}
 	

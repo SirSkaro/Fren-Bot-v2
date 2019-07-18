@@ -5,13 +5,20 @@ import java.util.List;
 public class ParserException extends RuntimeException {
 
 	private static final long serialVersionUID = 8887248364227285285L;
+	private String usageHint;
 	
-	public ParserException(String arguments, Exception e) {
-		super("Exception "+ e.getClass().getSimpleName() +" - Could not parse the string: "+ arguments);
+	public ParserException(String arguments, String usageHint) {
+		super("Could not parse the string: "+ arguments);
+		this.usageHint = usageHint;
 	}
 	
-	public ParserException(List<String> arguments, Exception e) {
-		super("Exception "+ e.getClass().getSimpleName() +" - Could not parse the string: "+ String.join(",", arguments));
+	public ParserException(List<String> arguments, String usageHint) {
+		super("Could not parse the string: "+ String.join(",", arguments));
+		this.usageHint = usageHint;
 	}
 
+	public String getUsageHint() {
+		return usageHint;
+	}
+	
 }

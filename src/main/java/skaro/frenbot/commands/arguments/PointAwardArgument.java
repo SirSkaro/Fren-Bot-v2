@@ -4,10 +4,10 @@ import org.kohsuke.args4j.Option;
 
 public class PointAwardArgument implements Argument {
 
-	@Option(name="-amount", aliases="-points", required=true, usage="amount of points to award to a user")
+	@Option(name="-points", metaVar="N", required=true, usage="the (positive) amount of points to award to a user")
 	private Integer amount;
 	
-	@Option(name="-user", aliases="-who", required=true, usage="user to award points to")
+	@Option(name="-user", metaVar="@user", required=true, usage="the user to award points to")
 	private String userDiscordId;
 	
 	public PointAwardArgument() {

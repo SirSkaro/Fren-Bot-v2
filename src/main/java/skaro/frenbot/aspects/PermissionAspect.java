@@ -23,10 +23,10 @@ import skaro.frenbot.receivers.services.DiscordService;
 public class PermissionAspect {
 	
 	@Autowired
-	DiscordService discordService;
+	private DiscordService discordService;
 
 	@Around("execution(reactor.core.publisher.Mono<discord4j.core.object.entity.Message> (@skaro.frenbot.aspects.RequireDiscordPermission skaro.frenbot.commands.*Command).execute(..))")
-	public Object requireDiscordPermission(ProceedingJoinPoint joinPoint) throws Throwable {
+	public Object invalidPermissionsAdvice(ProceedingJoinPoint joinPoint) throws Throwable {
 		RequireDiscordPermission requiredPermission = getAnnotation(joinPoint);
 		Permission permission = requiredPermission.permission();
 		Message userMessage = (Message)joinPoint.getArgs()[0];
