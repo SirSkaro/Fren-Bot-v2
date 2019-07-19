@@ -20,7 +20,7 @@ import skaro.frenbot.receivers.services.DiscordService;
 
 @Aspect
 @Component
-public class ReactorErrorHandleAspect {
+public class ReactorCommandErrorHandleAspect {
 
 	@Autowired
 	private DiscordService discordService;
