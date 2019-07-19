@@ -2,23 +2,20 @@ package skaro.frenbot.commands.parsers;
 
 import java.util.List;
 
+import skaro.frenbot.commands.arguments.UsageHelp;
+
 public class ParserException extends RuntimeException {
 
 	private static final long serialVersionUID = 8887248364227285285L;
-	private String usageHint;
+	private UsageHelp usageHelp;
 	
-	public ParserException(String arguments, String usageHint) {
-		super("Could not parse the string: "+ arguments);
-		this.usageHint = usageHint;
-	}
-	
-	public ParserException(List<String> arguments, String usageHint) {
+	public ParserException(List<String> arguments, UsageHelp usage) {
 		super("Could not parse the string: "+ String.join(",", arguments));
-		this.usageHint = usageHint;
+		this.usageHelp = usage;
 	}
 
-	public String getUsageHint() {
-		return usageHint;
+	public UsageHelp getUsageHint() {
+		return usageHelp;
 	}
 	
 }

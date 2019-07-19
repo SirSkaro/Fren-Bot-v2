@@ -1,11 +1,16 @@
 package skaro.frenbot.commands.parsers;
 
 import java.io.ByteArrayOutputStream;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.kohsuke.args4j.CmdLineParser;
 
 import skaro.frenbot.commands.arguments.Argument;
+import skaro.frenbot.commands.arguments.FlagDescriptionPair;
+import skaro.frenbot.commands.arguments.UsageHelp;
 
 public class ArgumentParser implements ObjectParser {
 	
@@ -19,18 +24,22 @@ public class ArgumentParser implements ObjectParser {
 			
 			return argument;
 		} catch (Exception e) {
-			throw new ParserException(arguments, getUsageMessage(parser));
+			throw new ParserException(arguments, new UsageHelp(getFlagsAndDescriptions(parser)));
 		}
 	}
 	
-	private String getUsageMessage(CmdLineParser parser) {
+	private List<FlagDescriptionPair> getFlagsAndDescriptions(CmdLineParser parser) {
 		if(parser == null) {
-			return "no usage help available : an error may have occured";
+			return new ArrayList<FlagDescriptionPair>();
 		}
 		
 		ByteArrayOutputStream stream = new ByteArrayOutputStream();
 		parser.printUsage(stream);
-		return new String(stream.toByteArray());
+		
+		return Arrays.stream(new String(stream.toByteArray()).split("\n"))
+			.map(flagAndDescription -> flagAndDescription.split(":"))
+			.map(flagAndDescription -> new FlagDescriptionPair(flagAndDescription[0].trim(), flagAndDescription[1].trim()))
+			.collect(Collectors.toList());
 	}
 	
 }

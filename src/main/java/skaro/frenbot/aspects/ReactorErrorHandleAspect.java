@@ -1,7 +1,6 @@
 package skaro.frenbot.aspects;
 
 import java.awt.Color;
-import java.util.Arrays;
 import java.util.function.Consumer;
 
 import org.aspectj.lang.ProceedingJoinPoint;
@@ -14,6 +13,8 @@ import discord4j.core.object.entity.Message;
 import discord4j.core.spec.EmbedCreateSpec;
 import discord4j.core.spec.MessageCreateSpec;
 import reactor.core.publisher.Mono;
+import skaro.frenbot.commands.arguments.FlagDescriptionPair;
+import skaro.frenbot.commands.arguments.UsageHelp;
 import skaro.frenbot.commands.parsers.ParserException;
 import skaro.frenbot.receivers.services.DiscordService;
 
@@ -39,16 +40,17 @@ public class ReactorErrorHandleAspect {
 		return discordService.replyToMessage(message, messageSpec);
 	}
 	
-	private Consumer<EmbedCreateSpec> composeEmbed(String useage) {
+	private Consumer<EmbedCreateSpec> composeEmbed(UsageHelp usage) {
+		StringBuilder exampleUsage = new StringBuilder("example: __command ");
 		Consumer<EmbedCreateSpec> embedSpec = spec -> spec.setColor(Color.RED)
-				.setTitle(":thinking: Please provide the follow arguments for this command");
+				.setTitle(":x: Incorrect command usage");
 		
-		for(String argumentHelp : Arrays.asList(useage.split("\n"))) {
-			String[] argumentDescriptionPair = argumentHelp.split(":");
-			embedSpec = embedSpec.andThen(spec -> spec.addField(argumentDescriptionPair[0].trim(), argumentDescriptionPair[1].trim(), false));
+		for(FlagDescriptionPair pair : usage.getFlags()) {
+			embedSpec = embedSpec.andThen(spec -> spec.addField(pair.getFlag(), pair.getDescription(), false));
+			exampleUsage.append(pair.getFlag() + " ");
 		}
 		
-		return embedSpec;
+		return embedSpec.andThen(spec -> spec.setDescription(exampleUsage.toString() + "__"));
 	}
 	
 }
