@@ -1,5 +1,6 @@
 package skaro.frenbot.aspects;
 
+import java.awt.Color;
 import java.util.function.Consumer;
 
 import org.aspectj.lang.ProceedingJoinPoint;
@@ -31,7 +32,8 @@ public class ReactorReceiverErrorHandleAspect {
 	
 	private Mono<Message> createAPIErrorMessage(Message userMessage, Throwable error) {
 		Consumer<EmbedCreateSpec> embedSpec = (EmbedCreateSpec spec) -> spec.setTitle(":thermometer_face: Uh oh! An external error occured")
-					.setDescription("Tell Sir Skaro that a "+ error.getClass().getSimpleName() + " occured - even though it's Mort's fault");
+					.setDescription("Please report to an admin that a "+ error.getClass().getSimpleName() + " occured")
+					.setColor(Color.BLACK);
 		Consumer<MessageCreateSpec> messageSpec = (MessageCreateSpec spec) -> spec.setEmbed(embedSpec);
 		
 		return discordService.replyToMessage(userMessage, messageSpec);
