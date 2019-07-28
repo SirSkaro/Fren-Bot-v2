@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import discord4j.core.object.entity.Member;
 import discord4j.core.object.entity.Message;
+import discord4j.core.object.entity.Role;
 import discord4j.core.spec.EmbedCreateSpec;
 import discord4j.core.spec.MessageCreateSpec;
 import reactor.core.publisher.Mono;
@@ -27,16 +28,32 @@ public class ProgressReceiver implements Receiver {
 	public Mono<Message> process(Argument argument, Message message) {
 		return discordService.getAuthor(message)
 				.flatMap(author -> apiService.getUserProgress(author)
-					.map(userProgress -> formatMessage(userProgress, author))
+					.flatMap(userProgress -> formatMessage(userProgress, author))
 					.flatMap(messageSpec -> discordService.replyToMessage(message, messageSpec)));
 	}
 	
-	private Consumer<MessageCreateSpec> formatMessage(UserProgressDTO userProgress, Member user) {
-		Consumer<EmbedCreateSpec> embedSpec = spec -> spec.setTitle(user.getDisplayName())
+	private Mono<Consumer<MessageCreateSpec>> formatMessage(UserProgressDTO userProgress, Member user) {
+		BadgeDTO currentBadge = userProgress.getCurrentHighestBadge();
+		
+		if(currentBadge != null) {
+			return discordService.getRoleForBadge(currentBadge)
+					.map(role -> formatMessageEmbed(userProgress, user, role))
+					.map(embedSpec -> (MessageCreateSpec spec) -> spec.setEmbed(embedSpec));
+		}
+		
+		Consumer<MessageCreateSpec> messageSpec = spec -> spec.setEmbed(formatMessageEmbed(userProgress, user));
+		return Mono.just(messageSpec);
+	}
+	
+	private Consumer<EmbedCreateSpec> formatMessageEmbed(UserProgressDTO userProgress, Member user) {
+		return spec -> spec.setAuthor(user.getDisplayName(), null, user.getAvatarUrl())
 				.setDescription(createProgressBar(userProgress))
 				.setThumbnail(createThumbnailURI(userProgress));
-		
-		return (MessageCreateSpec spec) -> spec.setEmbed(embedSpec);
+	}
+	
+	private Consumer<EmbedCreateSpec> formatMessageEmbed(UserProgressDTO userProgress, Member user, Role role) {
+		return formatMessageEmbed(userProgress, user)
+				.andThen(spec -> spec.setColor(role.getColor()));
 	}
 	
 	private String createProgressBar(UserProgressDTO userProgress) {
@@ -48,20 +65,12 @@ public class ProgressReceiver implements Receiver {
 		
 		if(hasAnyBadge && hasBadgeToEarn) {
 			percentage = calculatePercentage(userProgress);
-			barTitle = String.format(" %s ==► %s ",
-					userProgress.getCurrentHighestBadge().getTitle(),
-					userProgress.getNextBadge().getTitle());
-			barFooter = String.format(" %d/%d points (%d%%) ",
-					userProgress.getCurrentPoints(),
-					userProgress.getNextBadge().getPointThreshold(),
-					percentage);
+			barTitle = String.format(" %s ==► %s ", userProgress.getCurrentHighestBadge().getTitle(), userProgress.getNextBadge().getTitle());
+			barFooter = String.format(" %d/%d points (%d%%) ", userProgress.getCurrentPoints(), userProgress.getNextBadge().getPointThreshold(), percentage);
 		} else if (!hasAnyBadge && hasBadgeToEarn) {
 			percentage = calculatePercentage(userProgress);
 			barTitle = String.format(" Progress to %s ", userProgress.getNextBadge().getTitle());
-			barFooter = String.format(" %d/%d points (%d%%) ",
-					userProgress.getCurrentPoints(),
-					userProgress.getNextBadge().getPointThreshold(),
-					percentage);
+			barFooter = String.format(" %d/%d points (%d%%) ", userProgress.getCurrentPoints(), userProgress.getNextBadge().getPointThreshold(), percentage);
 		} else if (hasAnyBadge && !hasBadgeToEarn) {
 			barTitle = " You've earned every badge! ";
 			barFooter = String.format(" %s points ", userProgress.getCurrentPoints());
@@ -72,7 +81,7 @@ public class ProgressReceiver implements Receiver {
 			percentage = 0;
 		}
 		
-		return formatBar(barTitle, barFooter, percentage);
+		return formatProgressBar(barTitle, barFooter, percentage);
 	}
 
 	private String createThumbnailURI(UserProgressDTO userProgress) {
@@ -80,16 +89,10 @@ public class ProgressReceiver implements Receiver {
 		return currentBadge != null ? currentBadge.getImageUri() : null;
 	}
 
-	private String formatBar(String barTitle, String barFooter, int percent)
+	private String formatProgressBar(String barTitle, String barFooter, int percent)
 	{
-		StringBuilder builder = new StringBuilder();
 		String bar = createBar(percent);
-		
-		builder.append(String.format("`╔%s╗`\n", StringUtils.center(barTitle, bar.length() + 2, "═")));
-		builder.append("`╠╣"+ bar +"╠╣`\n");
-		builder.append(String.format("`╚%s╝`", StringUtils.center(barFooter, bar.length() + 2, "═")));
-		
-		return builder.toString();
+		return createBarFrame(barTitle, barFooter, bar);
 	}
 	
 	private String createBar(int percent)
@@ -111,6 +114,15 @@ public class ProgressReceiver implements Receiver {
 		for(; itr < maxBarLength; itr++)
 			builder.append(" ");
 		
+		
+		return builder.toString();
+	}
+	
+	private String createBarFrame(String barTitle, String barFooter, String bar) {
+		StringBuilder builder = new StringBuilder();
+		builder.append(String.format("`╔%s╗`\n", StringUtils.center(barTitle, bar.length() + 2, "═")));
+		builder.append("`╠╣"+ bar +"╠╣`\n");
+		builder.append(String.format("`╚%s╝`", StringUtils.center(barFooter, bar.length() + 2, "═")));
 		
 		return builder.toString();
 	}
