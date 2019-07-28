@@ -47,9 +47,8 @@ public class ProgressReceiver implements Receiver {
 	}
 	
 	private Consumer<EmbedCreateSpec> formatMessageEmbed(UserProgressDTO userProgress, Member user) {
-		return spec -> spec.setAuthor(user.getDisplayName(), null, user.getAvatarUrl())
-				.setDescription(createProgressBar(userProgress))
-				.setThumbnail(createThumbnailURI(userProgress));
+		return spec -> spec.setAuthor(user.getDisplayName(), null, userProgress.getCurrentHighestBadge().getImageUri())
+				.setDescription(createProgressBar(userProgress));
 	}
 	
 	private Consumer<EmbedCreateSpec> formatMessageEmbed(UserProgressDTO userProgress, Member user, Role role) {
@@ -84,12 +83,7 @@ public class ProgressReceiver implements Receiver {
 		
 		return formatProgressBar(barTitle, barFooter, percentage);
 	}
-
-	private String createThumbnailURI(UserProgressDTO userProgress) {
-		BadgeDTO currentBadge = userProgress.getCurrentHighestBadge();
-		return currentBadge != null ? currentBadge.getImageUri() : null;
-	}
-
+	
 	private String formatProgressBar(String barTitle, String barFooter, int percent)
 	{
 		String bar = createBar(percent);
