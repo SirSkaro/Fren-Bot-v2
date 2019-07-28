@@ -26,10 +26,11 @@ public class ProgressReceiver implements Receiver {
 	
 	@Override
 	public Mono<Message> process(Argument argument, Message message) {
-		return discordService.getAuthor(message)
+		return discordService.notifyRequestRecieved(message)
+				.then(discordService.getAuthor(message)
 				.flatMap(author -> apiService.getUserProgress(author)
 					.flatMap(userProgress -> formatMessage(userProgress, author))
-					.flatMap(messageSpec -> discordService.replyToMessage(message, messageSpec)));
+					.flatMap(messageSpec -> discordService.replyToMessage(message, messageSpec))));
 	}
 	
 	private Mono<Consumer<MessageCreateSpec>> formatMessage(UserProgressDTO userProgress, Member user) {
