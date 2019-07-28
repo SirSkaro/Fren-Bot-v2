@@ -14,6 +14,7 @@ import skaro.frenbot.receivers.dtos.BadgeDTO;
 public interface DiscordService {
 
 	public Mono<Member> getUserById(String id);
+	public Mono<Member> getAuthor(Message message);
 	public Mono<Message> replyToMessage(Message message, Consumer<MessageCreateSpec> reply);
 	public Mono<Void> assignBadgeRoles(Member user, List<BadgeDTO> badges);
 	public Mono<Role> getRoleForBadge(BadgeDTO badge);

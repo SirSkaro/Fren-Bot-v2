@@ -1,10 +1,18 @@
 package skaro.frenbot.receivers;
 
+import java.util.function.Consumer;
+
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import discord4j.core.object.entity.Member;
 import discord4j.core.object.entity.Message;
+import discord4j.core.spec.EmbedCreateSpec;
+import discord4j.core.spec.MessageCreateSpec;
 import reactor.core.publisher.Mono;
 import skaro.frenbot.commands.arguments.Argument;
+import skaro.frenbot.receivers.dtos.BadgeDTO;
+import skaro.frenbot.receivers.dtos.UserProgressDTO;
 import skaro.frenbot.receivers.services.DiscordService;
 import skaro.frenbot.receivers.services.PokeAimPIService;
 
@@ -17,8 +25,100 @@ public class ProgressReceiver implements Receiver {
 	
 	@Override
 	public Mono<Message> process(Argument argument, Message message) {
-		// TODO Auto-generated method stub
-		return null;
+		return discordService.getAuthor(message)
+				.flatMap(author -> apiService.getUserProgress(author)
+					.map(userProgress -> formatMessage(userProgress, author))
+					.flatMap(messageSpec -> discordService.replyToMessage(message, messageSpec)));
+	}
+	
+	private Consumer<MessageCreateSpec> formatMessage(UserProgressDTO userProgress, Member user) {
+		Consumer<EmbedCreateSpec> embedSpec = spec -> spec.setTitle(user.getDisplayName())
+				.setDescription(createProgressBar(userProgress))
+				.setThumbnail(createThumbnailURI(userProgress));
+		
+		return (MessageCreateSpec spec) -> spec.setEmbed(embedSpec);
+	}
+	
+	private String createProgressBar(UserProgressDTO userProgress) {
+		boolean hasAnyBadge = userProgress.getCurrentHighestBadge() != null;
+		boolean hasBadgeToEarn = userProgress.getNextBadge() != null;
+
+		String barTitle, barFooter;
+		int percentage;
+		
+		if(hasAnyBadge && hasBadgeToEarn) {
+			percentage = calculatePercentage(userProgress);
+			barTitle = String.format(" %s ==► %s ",
+					userProgress.getCurrentHighestBadge().getTitle(),
+					userProgress.getNextBadge().getTitle());
+			barFooter = String.format(" %d/%d points (%d%%) ",
+					userProgress.getCurrentPoints(),
+					userProgress.getNextBadge().getPointThreshold(),
+					percentage);
+		} else if (!hasAnyBadge && hasBadgeToEarn) {
+			percentage = calculatePercentage(userProgress);
+			barTitle = String.format(" Progress to %s ", userProgress.getNextBadge().getTitle());
+			barFooter = String.format(" %d/%d points (%d%%) ",
+					userProgress.getCurrentPoints(),
+					userProgress.getNextBadge().getPointThreshold(),
+					percentage);
+		} else if (hasAnyBadge && !hasBadgeToEarn) {
+			barTitle = " You've earned every badge! ";
+			barFooter = String.format(" %s points ", userProgress.getCurrentPoints());
+			percentage = 100;
+		} else {
+			barTitle = " No progress to report ";
+			barFooter = String.format(" %s points ", userProgress.getCurrentPoints());
+			percentage = 0;
+		}
+		
+		return formatBar(barTitle, barFooter, percentage);
 	}
 
+	private String createThumbnailURI(UserProgressDTO userProgress) {
+		BadgeDTO currentBadge = userProgress.getCurrentHighestBadge();
+		return currentBadge != null ? currentBadge.getImageUri() : null;
+	}
+
+	private String formatBar(String barTitle, String barFooter, int percent)
+	{
+		StringBuilder builder = new StringBuilder();
+		String bar = createBar(percent);
+		
+		builder.append(String.format("`╔%s╗`\n", StringUtils.center(barTitle, bar.length() + 2, "═")));
+		builder.append("`╠╣"+ bar +"╠╣`\n");
+		builder.append(String.format("`╚%s╝`", StringUtils.center(barFooter, bar.length() + 2, "═")));
+		
+		return builder.toString();
+	}
+	
+	private String createBar(int percent)
+	{
+		int maxBarLength = 32;
+		int itr;
+		int barLength = (int)(maxBarLength * ((double)percent / 100.0));
+		StringBuilder builder = new StringBuilder();
+		
+		for(itr = 0; itr < barLength; itr++)
+			builder.append("█");
+		
+		if(barLength < maxBarLength)
+		{
+			builder.append("►");
+			itr++;
+		}
+		
+		for(; itr < maxBarLength; itr++)
+			builder.append(" ");
+		
+		
+		return builder.toString();
+	}
+	
+	private int calculatePercentage(UserProgressDTO userProgress) {
+		int currentPoints = userProgress.getCurrentPoints();
+		int neededPoints = userProgress.getNextBadge().getPointThreshold();
+		return ((int)Math.floor(100.0 * currentPoints / neededPoints));
+	}
+	
 }

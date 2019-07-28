@@ -35,6 +35,7 @@ public class ReactorReceiverErrorHandleAspect {
 					.setDescription("Please report to an admin that a "+ error.getClass().getSimpleName() + " occured")
 					.setColor(Color.BLACK);
 		Consumer<MessageCreateSpec> messageSpec = (MessageCreateSpec spec) -> spec.setEmbed(embedSpec);
+		error.printStackTrace();
 		
 		return discordService.replyToMessage(userMessage, messageSpec);
 	}

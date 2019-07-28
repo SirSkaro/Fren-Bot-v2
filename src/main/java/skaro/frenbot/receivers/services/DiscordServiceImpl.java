@@ -29,6 +29,14 @@ public class DiscordServiceImpl implements DiscordService {
 		Snowflake discordId = Snowflake.of(id);
 		return server.getMemberById(discordId);
 	}
+	
+	@Override
+	public Mono<Member> getAuthor(Message message) {
+		return message.getAuthor()
+				.map(author -> author.getId().asString())
+				.map(userId -> getUserById(userId))
+				.orElse(Mono.empty());
+	}
 
 	@Override
 	public Mono<Message> replyToMessage(Message message, Consumer<MessageCreateSpec> reply) {

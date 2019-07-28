@@ -63,6 +63,7 @@ public class FrenBotConfig {
 		Map<String, Command> commands = new HashMap<>();
 		commands.put("ping", commandConfig.getPingCommand());
 		commands.put("preward", commandConfig.getPointAwardCommand());
+		commands.put("progress", commandConfig.getProgressCommand());
 		
 		return commands;
 	}

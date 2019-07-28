@@ -4,6 +4,7 @@ import java.util.List;
 
 import discord4j.core.object.entity.Message;
 import reactor.core.publisher.Mono;
+import skaro.frenbot.commands.arguments.NoArgument;
 import skaro.frenbot.receivers.Receiver;
 
 public class ProgressCommand implements Command {
@@ -12,7 +13,7 @@ public class ProgressCommand implements Command {
 	
 	@Override
 	public Mono<Message> execute(Message message, List<String> arguments) {
-		return receiver.process(null, message);
+		return receiver.process(new NoArgument(), message);
 	}
 
 	@Override

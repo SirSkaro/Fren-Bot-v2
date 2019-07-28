@@ -10,6 +10,7 @@ import skaro.frenbot.commands.FixedRewardCommand;
 import skaro.frenbot.commands.PingCommand;
 import skaro.frenbot.commands.PointAwardCommand;
 import skaro.frenbot.commands.PointListenerCommand;
+import skaro.frenbot.commands.ProgressCommand;
 
 @Configuration
 public class CommandConfig {
@@ -28,6 +29,13 @@ public class CommandConfig {
 	public PointAwardCommand getPointAwardCommand() {
 		PointAwardCommand command = new PointAwardCommand();
 		command.setReceiver(receiverConfig.getPointAwardReceiver());
+		return command;
+	}
+	
+	@Bean
+	public ProgressCommand getProgressCommand() {
+		ProgressCommand command = new ProgressCommand();
+		command.setReceiver(receiverConfig.getProgressReceiver());
 		return command;
 	}
 	

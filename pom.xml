@@ -6,7 +6,7 @@
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
 		<version>2.2.0.M4</version>
-		<relativePath /> 
+		<relativePath />
 	</parent>
 	<groupId>skaro.frenbot</groupId>
 	<artifactId>Fren-Bot</artifactId>
@@ -67,6 +67,11 @@
 			<version>2.33</version>
 		</dependency>
 
+		<dependency>
+			<groupId>commons-lang</groupId>
+			<artifactId>commons-lang</artifactId>
+			<version>2.6</version>
+		</dependency>
 
 	</dependencies>
 
