@@ -47,7 +47,8 @@ public class ProgressReceiver implements Receiver {
 	}
 	
 	private Consumer<EmbedCreateSpec> formatMessageEmbed(UserProgressDTO userProgress, Member user) {
-		return spec -> spec.setAuthor(user.getDisplayName(), null, userProgress.getCurrentHighestBadge().getImageUri())
+		String authorIconURI = userProgress.getCurrentHighestBadge() != null ? userProgress.getCurrentHighestBadge().getImageUri() : null;
+		return spec -> spec.setAuthor(user.getDisplayName(), null, authorIconURI)
 				.setDescription(createProgressBar(userProgress));
 	}
 	
