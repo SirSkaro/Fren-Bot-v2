@@ -28,14 +28,16 @@ public class PokeAimPIServiceImpl implements PokeAimPIService {
 				.build();
 		
 		String endpoint = String.format("%s/user/discord/%d/points/add", baseURI, user.getId().asLong());
-		return Mono.just(restTemplate.postForObject(endpoint, request, NewAwardsDTO.class))
+		NewAwardsDTO result = restTemplate.postForObject(endpoint, request, NewAwardsDTO.class);
+		return Mono.just(result)
 				.doOnNext(newAwards -> newAwards.getBadges().sort((BadgeDTO badge1, BadgeDTO badge2) -> badge1.getPointThreshold().compareTo(badge2.getPointThreshold())));
 	}
 
 	@Override
 	public Mono<UserProgressDTO> getUserProgress(Member user) {
 		String endpoint = String.format("%s/user/discord/%d/progress", baseURI, user.getId().asLong());
-		return Mono.just(restTemplate.getForObject(endpoint, UserProgressDTO.class));
+		UserProgressDTO result = restTemplate.getForObject(endpoint, UserProgressDTO.class);
+		return Mono.just(result);
 	}
 
 }
