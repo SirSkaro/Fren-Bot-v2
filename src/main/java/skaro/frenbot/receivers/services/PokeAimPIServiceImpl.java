@@ -1,12 +1,19 @@
 package skaro.frenbot.receivers.services;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import discord4j.core.object.entity.Member;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import skaro.frenbot.receivers.dtos.BadgeAwardDTO;
 import skaro.frenbot.receivers.dtos.BadgeDTO;
 import skaro.frenbot.receivers.dtos.DTOBuilder;
 import skaro.frenbot.receivers.dtos.NewAwardsDTO;
@@ -38,6 +45,14 @@ public class PokeAimPIServiceImpl implements PokeAimPIService {
 		String endpoint = String.format("%s/user/discord/%d/progress", baseURI, user.getId().asLong());
 		UserProgressDTO result = restTemplate.getForObject(endpoint, UserProgressDTO.class);
 		return Mono.just(result);
+	}
+
+	@Override
+	public Flux<BadgeAwardDTO> getUserBadges(Member user) {
+		String endpoint = String.format("%s/award?userDiscordId=%d", baseURI, user.getId().asLong());
+		ResponseEntity<List<BadgeAwardDTO>> result = restTemplate.exchange(endpoint, HttpMethod.GET, null, new ParameterizedTypeReference<List<BadgeAwardDTO>>() {});
+		
+		return Flux.fromIterable(result.getBody());
 	}
 
 }
