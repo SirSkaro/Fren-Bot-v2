@@ -10,7 +10,7 @@
 	</parent>
 	<groupId>skaro.frenbot</groupId>
 	<artifactId>Fren-Bot</artifactId>
-	<version>1.0.1</version>
+	<version>1.0.2</version>
 	<name>Fren-Bot</name>
 	<description>Fren bot v2</description>
 
@@ -71,6 +71,12 @@
 			<groupId>commons-lang</groupId>
 			<artifactId>commons-lang</artifactId>
 			<version>2.6</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-math3</artifactId>
+			<version>3.6.1</version>
 		</dependency>
 
 	</dependencies>
