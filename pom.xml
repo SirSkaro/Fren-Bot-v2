@@ -10,7 +10,7 @@
 	</parent>
 	<groupId>skaro.frenbot</groupId>
 	<artifactId>Fren-Bot</artifactId>
-	<version>1.0.1</version>
+	<version>1.0.2</version>
 	<name>Fren-Bot</name>
 	<description>Fren bot v2</description>
 

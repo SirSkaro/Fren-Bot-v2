@@ -34,13 +34,14 @@ public class RPSReceiver implements Receiver {
 	
 	@Override
 	public Mono<Message> process(Argument argument, Message message) {
-		return discordService.getAuthor(message)
-		.publishOn(Schedulers.single())
-		.flatMap(author -> setPlayer1(author, message)
-				.switchIfEmpty(Mono.defer(() -> setPlayer2(author, message))))
-		.flatMap(responseMessage -> conductGame(responseMessage))
-		.flatMap(result -> processResult(result))
-		.flatMap(messageSpec -> discordService.replyToMessage(message, messageSpec));
+		return discordService.notifyRequestRecieved(message)
+			.then(discordService.getAuthor(message))
+			.publishOn(Schedulers.single())
+			.flatMap(author -> setPlayer1(author, message)
+					.switchIfEmpty(Mono.defer(() -> setPlayer2(author, message))))
+			.flatMap(responseMessage -> conductGame(responseMessage))
+			.flatMap(result -> processResult(result))
+			.flatMap(messageSpec -> discordService.replyToMessage(message, messageSpec));
 	}
 	
 	private Mono<Message> setPlayer1(Member player, Message message) {
@@ -54,6 +55,9 @@ public class RPSReceiver implements Receiver {
 	}
 	
 	private Mono<Message> setPlayer2(Member player, Message message) {
+		if(player1.getId().equals(player.getId())) {
+			return discordService.replyToMessage(message, spec -> spec.setContent("You can't play against yourself :horse:")); 
+		}
 		player2 = player;
 		player2Option = rpsService.getWeightedOption();
 		return discordService.replyToMessage(message, player2ReadyMessage());
@@ -68,7 +72,7 @@ public class RPSReceiver implements Receiver {
 
 	private Consumer<MessageCreateSpec> player1ReadyMessage() {
 		StringBuilder builder = new StringBuilder();
-		builder.append(String.format("%s has issued a challenge to play rock :mountain: paper :newspaper2: scissors :scissors:!", player1.getMention()));
+		builder.append(String.format("%s has issued a challenge to play Rock-Paper-Scissors!", player1.getMention()));
 		builder.append(String.format("\n%s got %s", player1.getDisplayName(), player1Option.getName()));
 		Consumer<EmbedCreateSpec> embedSpec = spec -> spec.setDescription(builder.toString())
 				.setImage(player1Option.getImageURL())
@@ -80,7 +84,7 @@ public class RPSReceiver implements Receiver {
 	
 	private Consumer<MessageCreateSpec> player2ReadyMessage() {
 		StringBuilder builder = new StringBuilder();
-		builder.append(String.format("%s accepted %s's challenge!", player2.getMention(), player2.getMention()));
+		builder.append(String.format("%s accepted %s's challenge!", player2.getMention(), player1.getMention()));
 		builder.append(String.format("\n%s got %s", player2.getDisplayName(), player2Option.getName()));
 		Consumer<EmbedCreateSpec> embedSpec = spec -> spec.setDescription(builder.toString())
 				.setColor(Color.BLUE)
