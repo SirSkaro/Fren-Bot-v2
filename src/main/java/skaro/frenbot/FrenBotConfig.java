@@ -64,6 +64,7 @@ public class FrenBotConfig {
 		commands.put("ping", commandConfig.getPingCommand());
 		commands.put("preward", commandConfig.getPointAwardCommand());
 		commands.put("progress", commandConfig.getProgressCommand());
+		commands.put("rps", commandConfig.getRPSCommand());
 		
 		return commands;
 	}

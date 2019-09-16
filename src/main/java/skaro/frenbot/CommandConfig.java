@@ -11,6 +11,7 @@ import skaro.frenbot.commands.PingCommand;
 import skaro.frenbot.commands.PointAwardCommand;
 import skaro.frenbot.commands.PointListenerCommand;
 import skaro.frenbot.commands.ProgressCommand;
+import skaro.frenbot.commands.RPSCommand;
 
 @Configuration
 public class CommandConfig {
@@ -19,6 +20,7 @@ public class CommandConfig {
 	ReceiverConfig receiverConfig;
 
 	@Bean
+	@Scope(value = ConfigurableBeanFactory.SCOPE_SINGLETON)
 	public PingCommand getPingCommand() {
 		PingCommand command = new PingCommand();
 		command.setReceiver(receiverConfig.getPingReceiver());
@@ -26,6 +28,7 @@ public class CommandConfig {
 	}
 	
 	@Bean
+	@Scope(value = ConfigurableBeanFactory.SCOPE_SINGLETON)
 	public PointAwardCommand getPointAwardCommand() {
 		PointAwardCommand command = new PointAwardCommand();
 		command.setReceiver(receiverConfig.getPointAwardReceiver());
@@ -33,6 +36,7 @@ public class CommandConfig {
 	}
 	
 	@Bean
+	@Scope(value = ConfigurableBeanFactory.SCOPE_SINGLETON)
 	public ProgressCommand getProgressCommand() {
 		ProgressCommand command = new ProgressCommand();
 		command.setReceiver(receiverConfig.getProgressReceiver());
@@ -44,6 +48,14 @@ public class CommandConfig {
 	public PointListenerCommand getPointRewardCommand() {
 		PointListenerCommand command = new FixedRewardCommand();
 		command.setReceiver(receiverConfig.getSilentPointAwardReceiver());
+		return command;
+	}
+	
+	@Bean
+	@Scope(value = ConfigurableBeanFactory.SCOPE_SINGLETON)
+	public RPSCommand getRPSCommand() {
+		RPSCommand command = new RPSCommand();
+		command.setReceiver(receiverConfig.getRPSReceiver());
 		return command;
 	}
 	
