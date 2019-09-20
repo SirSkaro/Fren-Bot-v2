@@ -10,6 +10,7 @@ import org.springframework.core.annotation.Order;
 import discord4j.core.DiscordClient;
 import discord4j.core.event.domain.guild.MemberJoinEvent;
 import discord4j.core.event.domain.message.MessageCreateEvent;
+import discord4j.core.object.entity.PrivateChannel;
 import reactor.core.publisher.Mono;
 import skaro.frenbot.invokers.MessageCreateInvoker;
 import skaro.frenbot.receivers.services.DiscordService;
@@ -28,6 +29,7 @@ public class FrenBot {
 		return args -> discordClient.getEventDispatcher().on(MessageCreateEvent.class)
 				.map(event -> event.getMessage())
 				.filter(message -> message.getAuthor().map(user -> !user.isBot()).orElse(false))
+				.filterWhen(message -> message.getChannel().map(channel -> !(channel instanceof PrivateChannel)))
 				.flatMap(message -> invoker.respond(message))
 				.onErrorResume(throwable -> Mono.empty())
 				.subscribe(event -> System.out.println("event handled"));
