@@ -13,7 +13,7 @@ public class RegexParser implements TextParser {
 	private int argumentGroupNumber;
 	
 	public RegexParser(String prefix) {
-		String patternRegex = String.format("(%s)([a-zA-Z]+)([ a-zA-Z0-9\\-<>@!]*)", prefix);
+		String patternRegex = String.format("^(%s)([a-zA-Z]+)([ a-zA-Z0-9\\-<>@!]*)", prefix);
 		expectedPattern = Pattern.compile(patternRegex);
 		commandGroupNumber = 2;
 		argumentGroupNumber = 3;
