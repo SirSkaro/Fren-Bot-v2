@@ -127,9 +127,9 @@ public class RPSReceiver implements Receiver {
 	}
 	
 	private Consumer<EmbedCreateSpec> createVictoryMessage(RPSResult result) {
-		String winnerName = result.getWinner().getMention();
+		String winnerName = result.getWinner().getDisplayName();
 		String rewardTitle = String.format(":crossed_swords: %s", result.getWinningOption().getVictoryMessage(winnerName));
-		Consumer<EmbedCreateSpec> embedSpec = spec -> spec.setDescription(rewardTitle);
+		Consumer<EmbedCreateSpec> embedSpec = spec -> spec.setTitle(rewardTitle);
 		return embedSpec.andThen(spec -> spec.setColor(Color.GREEN))
 				.andThen(addBadgesToMessage(embedSpec, result.getApiAwards(), result.getWinner()));
 	}
