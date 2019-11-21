@@ -44,6 +44,7 @@ public class FrenBot {
 						.map(award -> award.getBadge())
 						.collectList()
 						.flatMap(badges -> discordService.assignBadgeRoles(member, badges)))
+				.onErrorResume(throwable -> Mono.empty())
 				.subscribe(arg -> System.out.println("member join handled"));
 	}
 	
