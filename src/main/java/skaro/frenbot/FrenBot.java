@@ -52,7 +52,6 @@ public class FrenBot {
 	@Order(value = Ordered.HIGHEST_PRECEDENCE)
 	public CommandLineRunner login(DiscordClient discordClient) throws Exception {
 		return args -> discordClient.login().block(); 
-		
 	}
 	
 }

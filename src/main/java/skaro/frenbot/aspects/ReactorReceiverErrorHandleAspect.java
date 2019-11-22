@@ -9,6 +9,7 @@ import org.aspectj.lang.annotation.Aspect;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpClientErrorException.BadRequest;
+import org.springframework.web.client.HttpClientErrorException.Forbidden;
 
 import discord4j.core.object.entity.Message;
 import discord4j.core.spec.EmbedCreateSpec;
@@ -34,20 +35,24 @@ public class ReactorReceiverErrorHandleAspect {
 	private Mono<Message> createAPIErrorMessage(Message userMessage, Throwable error) {
 		Consumer<MessageCreateSpec> messageSpec;
 		
-		if(error instanceof BadRequest) {
+		if(isApiRejection(error)) {
 			messageSpec = createBadRequestErrorMessage();
 		} else {
 			messageSpec = createGenericErrorMessage(error);
 		}
 		
 		error.printStackTrace();
-		
 		return discordService.replyToMessage(userMessage, messageSpec);
+	}
+	
+	private boolean isApiRejection(Throwable error) {
+		return (error instanceof BadRequest)
+				|| (error instanceof Forbidden);
 	}
 	
 	private Consumer<MessageCreateSpec> createBadRequestErrorMessage() {
 		Consumer<EmbedCreateSpec> embedSpec = (EmbedCreateSpec spec) -> spec.setTitle(":no_entry: Request Denied")
-				.setDescription("You may not make this request. Check the command usage")
+				.setDescription("You may not make this request. Check documentation for more information.")
 				.setColor(Color.RED);
 		return (MessageCreateSpec spec) -> spec.setEmbed(embedSpec);
 	}

@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import discord4j.core.object.entity.Member;
+import discord4j.core.object.entity.Role;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import skaro.frenbot.receivers.dtos.BadgeAwardDTO;
@@ -53,6 +54,13 @@ public class PokeAimPIServiceImpl implements PokeAimPIService {
 		ResponseEntity<List<BadgeAwardDTO>> result = restTemplate.exchange(endpoint, HttpMethod.GET, null, new ParameterizedTypeReference<List<BadgeAwardDTO>>() {});
 		
 		return Flux.fromIterable(result.getBody());
+	}
+
+	@Override
+	public Mono<BadgeAwardDTO> awardBadge(Member user, Role role) {
+		String endpoint = String.format("%s/award/discord/user/%d/role/%d", baseURI, user.getId().asLong(), role.getId().asLong());
+		BadgeAwardDTO result = restTemplate.postForObject(endpoint, null, BadgeAwardDTO.class);
+		return Mono.just(result);
 	}
 
 }

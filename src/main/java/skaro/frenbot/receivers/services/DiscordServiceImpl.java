@@ -71,4 +71,11 @@ public class DiscordServiceImpl implements DiscordService {
 			.map(permissions -> permissions.containsAll(PermissionSet.of(permission)));
 	}
 
+	@Override
+	public Mono<Role> getRoleByName(String name) {
+		return server.getRoles()
+				.filter(role -> role.getName().equalsIgnoreCase(name))
+				.singleOrEmpty();
+	}
+
 }
