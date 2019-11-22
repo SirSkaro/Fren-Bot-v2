@@ -8,6 +8,7 @@ import org.springframework.stereotype.Component;
 
 import discord4j.core.DiscordClient;
 import discord4j.core.event.domain.message.MessageCreateEvent;
+import discord4j.core.object.entity.Message;
 import discord4j.core.object.entity.PrivateChannel;
 import reactor.core.publisher.Mono;
 import skaro.frenbot.invokers.MessageCreateInvoker;
@@ -25,11 +26,22 @@ public class NewMessageEventRunner implements CommandLineRunner {
 	public void run(String... args) throws Exception {
 		discordClient.getEventDispatcher().on(MessageCreateEvent.class)
 			.map(event -> event.getMessage())
-			.filter(message -> message.getAuthor().map(user -> !user.isBot()).orElse(false))
-			.filterWhen(message -> message.getChannel().map(channel -> !(channel instanceof PrivateChannel)))
+			.filter(message -> !authorIsBot(message))
+			.filterWhen(message -> isFromPublicChannel(message))
 			.flatMap(message -> invoker.respond(message))
 			.onErrorResume(throwable -> Mono.empty())
 			.subscribe(event -> System.out.println("event handled"));
+	}
+	
+	private boolean authorIsBot(Message message) {
+		return message.getAuthor()
+				.map(user -> user.isBot())
+				.orElse(true);
+	}
+	
+	private Mono<Boolean> isFromPublicChannel(Message message) {
+		return message.getChannel()
+				.map(channel -> !(channel instanceof PrivateChannel));
 	}
 
 }
