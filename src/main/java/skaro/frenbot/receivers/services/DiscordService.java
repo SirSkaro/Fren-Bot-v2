@@ -18,6 +18,7 @@ public interface DiscordService {
 	public Mono<Message> replyToMessage(Message message, Consumer<MessageCreateSpec> reply);
 	public Mono<Void> assignBadgeRoles(Member user, List<BadgeDTO> badges);
 	public Mono<Role> getRoleForBadge(BadgeDTO badge);
+	public Mono<Role> getRoleByName(String name);
 	public Mono<Void> notifyRequestRecieved(Message message);
 	public Mono<Boolean> authorHasPermission(Message message, Permission permission);
 	
