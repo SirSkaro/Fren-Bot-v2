@@ -1,5 +1,7 @@
 package skaro.frenbot.receivers.services;
 
+import java.util.List;
+
 import discord4j.core.object.entity.Member;
 import discord4j.core.object.entity.Role;
 import reactor.core.publisher.Flux;
@@ -14,5 +16,6 @@ public interface PokeAimPIService {
 	Mono<UserProgressDTO> getUserProgress(Member user);
 	Flux<BadgeAwardDTO> getUserBadges(Member user);
 	Mono<BadgeAwardDTO> awardBadge(Member user, Role role);
+	Mono<List<BadgeAwardDTO>> getAllAwards();
 	
 }

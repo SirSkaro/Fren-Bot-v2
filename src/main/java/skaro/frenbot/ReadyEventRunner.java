@@ -1,6 +1,7 @@
 package skaro.frenbot;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
@@ -12,6 +13,7 @@ import discord4j.core.DiscordClient;
 import discord4j.core.event.domain.lifecycle.ReadyEvent;
 import discord4j.core.object.entity.Member;
 import reactor.core.publisher.Mono;
+import skaro.frenbot.receivers.dtos.BadgeAwardDTO;
 import skaro.frenbot.receivers.dtos.BadgeDTO;
 import skaro.frenbot.receivers.services.DiscordService;
 import skaro.frenbot.receivers.services.PokeAimPIService;
@@ -30,18 +32,28 @@ public class ReadyEventRunner implements CommandLineRunner {
 	@Override
 	public void run(String... args) throws Exception {
 		discordClient.getEventDispatcher().on(ReadyEvent.class)
-			.flatMap(event -> discordService.getAllMembers())
-			.flatMap(member -> getBadgesToReassign(member)
-					.flatMap(badges -> discordService.assignBadgeRoles(member, badges)))
+			.flatMap(event -> apiService.getAllAwards()
+					.flatMapMany(awards -> discordService.getAllMembers()
+							.flatMap(member -> reassignMissingBadges(awards, member))))
 			.onErrorResume(throwable -> Mono.empty())
 			.subscribe(arg -> System.out.println("all roles restored"));
 	}
 	
-	private Mono<List<BadgeDTO>> getBadgesToReassign(Member member) {
-		return apiService.getUserBadges(member)
-			.map(award -> award.getBadge())
-			.filter(badge -> !member.getRoleIds().contains(badge.getId()))
-			.collectList();
+	private Mono<Void> reassignMissingBadges(List<BadgeAwardDTO> allAwards, Member member) {
+		List<BadgeDTO> badgesToReassignToMember = getBadgesToReassign(allAwards, member);
+		return discordService.assignBadgeRoles(member, badgesToReassignToMember);
+	}
+	
+	private List<BadgeDTO> getBadgesToReassign(List<BadgeAwardDTO> allAwards, Member member) {
+		return allAwards.stream()
+				.filter(award -> awardBelongsToMember(award, member))
+				.map(award -> award.getBadge())
+				.filter(badge -> !member.getRoleIds().contains(badge.getId()))
+				.collect(Collectors.toList());
+	}
+	
+	private boolean awardBelongsToMember(BadgeAwardDTO award, Member member) {
+		return award.getUser().getSocialProfile().getDiscordConnection().getDiscordId().equals(member.getId().asLong());
 	}
 
 }

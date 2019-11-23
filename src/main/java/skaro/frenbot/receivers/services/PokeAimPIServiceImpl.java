@@ -63,4 +63,11 @@ public class PokeAimPIServiceImpl implements PokeAimPIService {
 		return Mono.just(result);
 	}
 
+	@Override
+	public Mono<List<BadgeAwardDTO>> getAllAwards() {
+		String endpoint = String.format("%s/award", baseURI);
+		ResponseEntity<List<BadgeAwardDTO>> result = restTemplate.exchange(endpoint, HttpMethod.GET, null, new ParameterizedTypeReference<List<BadgeAwardDTO>>() {});
+		return Mono.just(result.getBody());
+	}
+
 }
