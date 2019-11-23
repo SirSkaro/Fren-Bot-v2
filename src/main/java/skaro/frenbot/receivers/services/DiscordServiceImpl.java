@@ -88,6 +88,12 @@ public class DiscordServiceImpl implements DiscordService {
 				.singleOrEmpty();
 	}
 	
+	@Override
+	public Flux<Member> getAllMembers() {
+		return getServer()
+				.flatMapMany(server -> server.getMembers());
+	}
+	
 	private Mono<Guild> getServer() {
 		return discordClient.getGuildById(serverSnowflake);
 	}
