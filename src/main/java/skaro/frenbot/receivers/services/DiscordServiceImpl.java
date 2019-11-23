@@ -4,8 +4,10 @@ import java.util.List;
 import java.util.function.Consumer;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import discord4j.core.DiscordClient;
 import discord4j.core.object.entity.Guild;
 import discord4j.core.object.entity.Member;
 import discord4j.core.object.entity.Message;
@@ -21,13 +23,19 @@ import skaro.frenbot.receivers.dtos.BadgeDTO;
 @Service
 public class DiscordServiceImpl implements DiscordService {
 
+	private Snowflake serverSnowflake;
 	@Autowired
-	Guild server;
+	private DiscordClient discordClient;
+	
+	public DiscordServiceImpl(@Value("${discord.guildId}") Long guildId) {
+		serverSnowflake = Snowflake.of(guildId);
+	}
 	
 	@Override
 	public Mono<Member> getUserById(String id) {
 		Snowflake discordId = Snowflake.of(id);
-		return server.getMemberById(discordId);
+		return getServer()
+				.flatMap(server -> server.getMemberById(discordId));
 	}
 	
 	@Override
@@ -55,7 +63,8 @@ public class DiscordServiceImpl implements DiscordService {
 	@Override
 	public Mono<Role> getRoleForBadge(BadgeDTO badge) {
 		Snowflake discordId = Snowflake.of(badge.getDiscordRoleId());
-		return server.getRoleById(discordId);
+		return getServer()
+				.flatMap(server -> server.getRoleById(discordId));
 	}
 
 	@Override
@@ -73,9 +82,20 @@ public class DiscordServiceImpl implements DiscordService {
 
 	@Override
 	public Mono<Role> getRoleByName(String name) {
-		return server.getRoles()
+		return getServer()
+				.flatMapMany(server -> server.getRoles())
 				.filter(role -> role.getName().equalsIgnoreCase(name))
 				.singleOrEmpty();
+	}
+	
+	@Override
+	public Flux<Member> getAllMembers() {
+		return getServer()
+				.flatMapMany(server -> server.getMembers());
+	}
+	
+	private Mono<Guild> getServer() {
+		return discordClient.getGuildById(serverSnowflake);
 	}
 
 }
