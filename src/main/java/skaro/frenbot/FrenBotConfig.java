@@ -15,8 +15,6 @@ import org.springframework.web.client.RestTemplate;
 import discord4j.core.DiscordClient;
 import discord4j.core.DiscordClientBuilder;
 import discord4j.core.event.domain.lifecycle.ReadyEvent;
-import discord4j.core.object.entity.Guild;
-import discord4j.core.object.util.Snowflake;
 import skaro.frenbot.commands.Command;
 import skaro.frenbot.commands.CommandFactory;
 import skaro.frenbot.commands.CommandFactoryImpl;
@@ -47,14 +45,6 @@ public class FrenBotConfig {
 		.subscribe(ready -> System.out.println("Logged in as " + ready.getSelf().getUsername()));
 
 		return client;
-	}
-	
-	@Bean
-	@Autowired
-	@Scope(value = ConfigurableBeanFactory.SCOPE_SINGLETON)
-	public Guild getDiscordGuild(DiscordClient discordClient, @Value("${discord.guildId}") Long guildId) {
-		Snowflake guildSnowflake = Snowflake.of(guildId);
-		return discordClient.getGuildById(guildSnowflake).block();
 	}
 	
 	@Bean
