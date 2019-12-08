@@ -12,6 +12,7 @@ import org.springframework.stereotype.Component;
 import discord4j.core.DiscordClient;
 import discord4j.core.event.domain.lifecycle.ReadyEvent;
 import discord4j.core.object.entity.Member;
+import discord4j.core.object.util.Snowflake;
 import reactor.core.publisher.Mono;
 import skaro.frenbot.receivers.dtos.BadgeAwardDTO;
 import skaro.frenbot.receivers.dtos.BadgeDTO;
@@ -34,7 +35,8 @@ public class ReadyEventRunner implements CommandLineRunner {
 		discordClient.getEventDispatcher().on(ReadyEvent.class)
 			.flatMap(event -> apiService.getAllAwards()
 					.flatMapMany(awards -> discordService.getAllMembers()
-							.flatMap(member -> reassignMissingBadges(awards, member))))
+							.flatMap(member -> reassignMissingBadges(awards, member)
+									.then(discordService.assignDividerRoles(member)))))
 			.onErrorResume(throwable -> Mono.empty())
 			.subscribe(arg -> System.out.println("all roles restored"));
 	}
@@ -48,7 +50,7 @@ public class ReadyEventRunner implements CommandLineRunner {
 		return allAwards.stream()
 				.filter(award -> awardBelongsToMember(award, member))
 				.map(award -> award.getBadge())
-				.filter(badge -> !member.getRoleIds().contains(badge.getId()))
+				.filter(badge -> !member.getRoleIds().contains(Snowflake.of(badge.getId())))
 				.collect(Collectors.toList());
 	}
 	

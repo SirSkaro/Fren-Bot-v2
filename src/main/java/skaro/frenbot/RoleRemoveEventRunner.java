@@ -32,17 +32,25 @@ public class RoleRemoveEventRunner implements CommandLineRunner {
 	@Override
 	public void run(String... args) throws Exception {
 		discordClient.getEventDispatcher().on(MemberUpdateEvent.class)
+			.filter(event -> roleWasRemoved(event))
 			.flatMap(event -> event.getMember()
 					.flatMap(member -> getBadgesToReassign(event.getCurrentRoles(), member)
-							.flatMap(badges -> discordService.assignBadgeRoles(member, badges))))
+							.flatMap(badges -> discordService.assignBadgeRoles(member, badges))
+							.then(discordService.assignDividerRoles(member))))
 			.onErrorResume(throwable -> Mono.empty())
 			.subscribe(event -> System.out.println("member edit handled"));
 	}
-
+	
+	private boolean roleWasRemoved(MemberUpdateEvent event) {
+		return event.getOld()
+				.map(oldMember -> oldMember.getRoleIds().size() > event.getCurrentRoles().size())
+				.orElse(true);
+	}
+	
 	private Mono<List<BadgeDTO>> getBadgesToReassign(Set<Snowflake> currentRoles, Member member) {
 		return apiService.getUserBadges(member)
 			.map(award -> award.getBadge())
-			.filter(badge -> !currentRoles.contains(badge.getId()))
+			.filter(badge -> !currentRoles.contains(Snowflake.of(badge.getId())))
 			.collectList();
 	}
 	
