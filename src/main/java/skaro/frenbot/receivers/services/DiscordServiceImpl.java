@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.function.Consumer;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import discord4j.core.DiscordClient;
@@ -18,18 +17,16 @@ import discord4j.core.object.util.Snowflake;
 import discord4j.core.spec.MessageCreateSpec;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import skaro.frenbot.DiscordConfig;
 import skaro.frenbot.receivers.dtos.BadgeDTO;
 
 @Service
 public class DiscordServiceImpl implements DiscordService {
 
-	private Snowflake serverSnowflake;
 	@Autowired
 	private DiscordClient discordClient;
-	
-	public DiscordServiceImpl(@Value("${discord.guildId}") Long guildId) {
-		serverSnowflake = Snowflake.of(guildId);
-	}
+	@Autowired
+	private DiscordConfig discordConfig;
 	
 	@Override
 	public Mono<Member> getUserById(String id) {
@@ -95,7 +92,17 @@ public class DiscordServiceImpl implements DiscordService {
 	}
 	
 	private Mono<Guild> getServer() {
-		return discordClient.getGuildById(serverSnowflake);
+		return discordClient.getGuildById(discordConfig.getServerSnowflake());
+	}
+
+	@Override
+	public Mono<Void> assignDividerRoles(Member user) {
+		System.out.println("Assigning roles " + user.getDisplayName());
+		return Flux.just(discordConfig.getEarnedBadgeDivider(), discordConfig.getBadgeDivider())
+				.flatMap(divider -> Flux.just(divider.getTopDivider(), divider.getBottomDivider()))
+				.filter(roleId -> !user.getRoleIds().contains(roleId))
+				.flatMap(roleId -> user.addRole(roleId))
+				.then();
 	}
 
 }
