@@ -1,10 +1,13 @@
 package skaro.frenbot.commands.arguments;
 
+import javax.validation.constraints.Pattern;
+
 import org.kohsuke.args4j.Option;
 
 public class UserArgument implements Argument {
 
 	@Option(name="-user", metaVar="@user", required=true, usage="the user to get information about")
+	@Pattern(regexp="<[@#!]*[0-9]+>")
 	private String userDiscordId;
 	
 	public UserArgument() {
