@@ -97,7 +97,6 @@ public class DiscordServiceImpl implements DiscordService {
 
 	@Override
 	public Mono<Void> assignDividerRoles(Member user) {
-		System.out.println("Assigning roles " + user.getDisplayName());
 		return Flux.just(discordConfig.getEarnedBadgeDivider(), discordConfig.getBadgeDivider())
 				.flatMap(divider -> Flux.just(divider.getTopDivider(), divider.getBottomDivider()))
 				.filter(roleId -> !user.getRoleIds().contains(roleId))

@@ -9,7 +9,6 @@ import java.util.stream.Collectors;
 import org.kohsuke.args4j.CmdLineParser;
 
 import skaro.frenbot.commands.arguments.Argument;
-import skaro.frenbot.commands.arguments.FlagDescriptionPair;
 import skaro.frenbot.commands.arguments.UsageHelp;
 
 public class ArgumentParser implements ObjectParser {

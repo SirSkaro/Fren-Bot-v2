@@ -56,6 +56,7 @@ public class FrenBotConfig {
 		commands.put("progress", commandConfig.getProgressCommand());
 		commands.put("rps", commandConfig.getRPSCommand());
 		commands.put("breward", commandConfig.getBadgeAwardCommand());
+		commands.put("profile", commandConfig.getProfileCommand());
 		
 		return commands;
 	}

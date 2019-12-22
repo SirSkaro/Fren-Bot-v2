@@ -33,7 +33,7 @@ public class SilentPointAwardReceiver implements Receiver {
 				.flatMap(user -> apiService.addPointsToUser(user, awardArgument.getAmount())
 						.filter(newAwards -> !newAwards.getBadges().isEmpty())
 						.flatMap(newAwards -> processAwards(newAwards, user))
-						.flatMap(messageSpec -> discordService.replyToMessage(message, messageSpec)));
+						.flatMap(rewardMessageSpec -> discordService.replyToMessage(message, rewardMessageSpec)));
 	}
 	
 	private Mono<Consumer<MessageCreateSpec>> processAwards(NewAwardsDTO newAwards, Member user) {

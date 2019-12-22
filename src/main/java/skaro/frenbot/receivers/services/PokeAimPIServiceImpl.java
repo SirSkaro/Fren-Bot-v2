@@ -1,6 +1,8 @@
 package skaro.frenbot.receivers.services;
 
+import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -68,6 +70,11 @@ public class PokeAimPIServiceImpl implements PokeAimPIService {
 		String endpoint = String.format("%s/award", baseURI);
 		ResponseEntity<List<BadgeAwardDTO>> result = restTemplate.exchange(endpoint, HttpMethod.GET, null, new ParameterizedTypeReference<List<BadgeAwardDTO>>() {});
 		return Mono.just(result.getBody());
+	}
+	
+	@Override
+	public Optional<BadgeDTO> getMostValuedRankedBadge(List<BadgeDTO> badges) {
+		return badges.stream().max(Comparator.comparing(BadgeDTO::getPointThreshold));
 	}
 
 }

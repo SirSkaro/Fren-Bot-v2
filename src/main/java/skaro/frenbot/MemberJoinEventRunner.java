@@ -31,7 +31,8 @@ public class MemberJoinEventRunner implements CommandLineRunner {
 	public void run(String... args) throws Exception {
 		discordClient.getEventDispatcher().on(MemberJoinEvent.class)
 			.map(event -> event.getMember())
-			.flatMap(member -> restoreRolesForAwardedBadges(member))
+			.flatMap(member -> restoreRolesForAwardedBadges(member)
+					.then(discordService.assignDividerRoles(member)))
 			.onErrorResume(throwable -> Mono.empty())
 			.subscribe(arg -> System.out.println("member join handled"));
 	}

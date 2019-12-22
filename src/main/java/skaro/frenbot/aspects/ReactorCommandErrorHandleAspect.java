@@ -13,8 +13,8 @@ import discord4j.core.object.entity.Message;
 import discord4j.core.spec.EmbedCreateSpec;
 import discord4j.core.spec.MessageCreateSpec;
 import reactor.core.publisher.Mono;
-import skaro.frenbot.commands.arguments.FlagDescriptionPair;
 import skaro.frenbot.commands.arguments.UsageHelp;
+import skaro.frenbot.commands.parsers.FlagDescriptionPair;
 import skaro.frenbot.commands.parsers.ParserException;
 import skaro.frenbot.receivers.services.DiscordService;
 
