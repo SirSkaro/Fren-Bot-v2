@@ -1,4 +1,4 @@
-package skaro.frenbot.commands.arguments;
+package skaro.frenbot.commands.parsers;
 
 public class FlagDescriptionPair {
 

@@ -30,9 +30,8 @@ public class DiscordServiceImpl implements DiscordService {
 	
 	@Override
 	public Mono<Member> getUserById(String id) {
-		Snowflake discordId = Snowflake.of(id);
-		return getServer()
-				.flatMap(server -> server.getMemberById(discordId));
+		return fetchServer()
+				.flatMap(server -> server.getMemberById(Snowflake.of(id)));
 	}
 	
 	@Override
@@ -59,9 +58,8 @@ public class DiscordServiceImpl implements DiscordService {
 
 	@Override
 	public Mono<Role> getRoleForBadge(BadgeDTO badge) {
-		Snowflake discordId = Snowflake.of(badge.getDiscordRoleId());
-		return getServer()
-				.flatMap(server -> server.getRoleById(discordId));
+		return fetchServer()
+				.flatMap(server -> server.getRoleById(Snowflake.of(badge.getDiscordRoleId())));
 	}
 
 	@Override
@@ -79,7 +77,7 @@ public class DiscordServiceImpl implements DiscordService {
 
 	@Override
 	public Mono<Role> getRoleByName(String name) {
-		return getServer()
+		return fetchServer()
 				.flatMapMany(server -> server.getRoles())
 				.filter(role -> role.getName().equalsIgnoreCase(name))
 				.singleOrEmpty();
@@ -87,17 +85,12 @@ public class DiscordServiceImpl implements DiscordService {
 	
 	@Override
 	public Flux<Member> getAllMembers() {
-		return getServer()
+		return fetchServer()
 				.flatMapMany(server -> server.getMembers());
 	}
 	
-	private Mono<Guild> getServer() {
-		return discordClient.getGuildById(discordConfig.getServerSnowflake());
-	}
-
 	@Override
 	public Mono<Void> assignDividerRoles(Member user) {
-		System.out.println("Assigning roles " + user.getDisplayName());
 		return Flux.just(discordConfig.getEarnedBadgeDivider(), discordConfig.getBadgeDivider())
 				.flatMap(divider -> Flux.just(divider.getTopDivider(), divider.getBottomDivider()))
 				.filter(roleId -> !user.getRoleIds().contains(roleId))
@@ -105,4 +98,7 @@ public class DiscordServiceImpl implements DiscordService {
 				.then();
 	}
 
+	private Mono<Guild> fetchServer() {
+		return discordClient.getGuildById(discordConfig.getServerSnowflake());
+	}
 }

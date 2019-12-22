@@ -23,6 +23,10 @@ public class ParsedText {
 	}
 	
 	public List<String> getArgumentsList() {
+		if(arguments.isEmpty()) {
+			return Arrays.asList();
+		}
+		
 		return Arrays.stream(arguments.split("\\s+"))
 				.map(argument -> argument.trim())
 				.collect(Collectors.toList());

@@ -11,6 +11,7 @@ public class PointAwardArgument implements Argument {
 	private String userDiscordId;
 	
 	public PointAwardArgument() {
+		
 	}
 	
 	public PointAwardArgument(int amount, String discordId) {

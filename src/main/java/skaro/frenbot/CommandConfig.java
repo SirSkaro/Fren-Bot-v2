@@ -11,6 +11,7 @@ import skaro.frenbot.commands.FixedRewardCommand;
 import skaro.frenbot.commands.PingCommand;
 import skaro.frenbot.commands.PointAwardCommand;
 import skaro.frenbot.commands.PointListenerCommand;
+import skaro.frenbot.commands.ProfileCommand;
 import skaro.frenbot.commands.ProgressCommand;
 import skaro.frenbot.commands.RPSCommand;
 
@@ -65,6 +66,14 @@ public class CommandConfig {
 	public BadgeAwardCommand getBadgeAwardCommand() {
 		BadgeAwardCommand command = new BadgeAwardCommand();
 		command.setReceiver(receiverConfig.getBadgeAwardReceiver());
+		return command;
+	}
+	
+	@Bean
+	@Scope(value = ConfigurableBeanFactory.SCOPE_SINGLETON)
+	public ProfileCommand getProfileCommand() {
+		ProfileCommand command = new ProfileCommand();
+		command.setReceiver(receiverConfig.getProfileReceiver());
 		return command;
 	}
 	
