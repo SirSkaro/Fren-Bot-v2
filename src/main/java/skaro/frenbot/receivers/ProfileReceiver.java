@@ -1,6 +1,7 @@
 package skaro.frenbot.receivers;
 
 import java.awt.Color;
+import java.sql.Date;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.List;
@@ -62,7 +63,8 @@ public class ProfileReceiver implements Receiver {
 				.setColor(color)
 				.setTitle(user.getDisplayName() + "'s Profile")
 				.addField("Rank Badges", earnedAwards.isEmpty() ? "None" : earnedAwards, false)
-				.addField("Badges", nonEarnedAwards.isEmpty() ? "None" : nonEarnedAwards, false);
+				.addField("Badges", nonEarnedAwards.isEmpty() ? "None" : nonEarnedAwards, false)
+				.setFooter("joined "+dateFormat.format(Date.from(user.getJoinTime())), null);
 	}
 	
 	private Mono<Color> getColorOfHighestRankBadge(List<BadgeAwardDTO> awards) {
