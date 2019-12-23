@@ -7,6 +7,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Scope;
 
 import skaro.frenbot.commands.BadgeAwardCommand;
+import skaro.frenbot.commands.BadgeCommand;
 import skaro.frenbot.commands.FixedRewardCommand;
 import skaro.frenbot.commands.PingCommand;
 import skaro.frenbot.commands.PointAwardCommand;
@@ -74,6 +75,14 @@ public class CommandConfig {
 	public ProfileCommand getProfileCommand() {
 		ProfileCommand command = new ProfileCommand();
 		command.setReceiver(receiverConfig.getProfileReceiver());
+		return command;
+	}
+	
+	@Bean
+	@Scope(value = ConfigurableBeanFactory.SCOPE_SINGLETON)
+	public BadgeCommand getBadgeCommand() {
+		BadgeCommand command = new BadgeCommand();
+		command.setReceiver(receiverConfig.getBadgeReceiver());
 		return command;
 	}
 	

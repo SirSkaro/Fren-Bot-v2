@@ -4,6 +4,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import skaro.frenbot.receivers.BadgeAwardReceiver;
+import skaro.frenbot.receivers.BadgeReceiver;
 import skaro.frenbot.receivers.PingReceiver;
 import skaro.frenbot.receivers.PointAwardReceiver;
 import skaro.frenbot.receivers.ProfileReceiver;
@@ -47,6 +48,11 @@ public class ReceiverConfig {
 	@Bean
 	public ProfileReceiver getProfileReceiver() {
 		return new ProfileReceiver();
+	}
+	
+	@Bean
+	public BadgeReceiver getBadgeReceiver() {
+		return new BadgeReceiver();
 	}
 	
 }
