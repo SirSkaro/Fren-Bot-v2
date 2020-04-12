@@ -13,16 +13,15 @@ import reactor.core.publisher.Mono;
 import skaro.frenbot.receivers.dtos.BadgeDTO;
 
 public interface DiscordService {
-
-	public Mono<Member> getUserById(String id);
-	public Mono<Member> getAuthor(Message message);
-	public Flux<Member> getAllMembers();
-	public Mono<Message> replyToMessage(Message message, Consumer<MessageCreateSpec> reply);
-	public Mono<Void> assignBadgeRoles(Member user, List<BadgeDTO> badges);
-	public Mono<Void> assignDividerRoles(Member user);
-	public Mono<Role> getRoleForBadge(BadgeDTO badge);
-	public Mono<Role> getRoleByName(String name);
-	public Mono<Void> notifyRequestRecieved(Message message);
-	public Mono<Boolean> authorHasPermission(Message message, Permission permission);
-	
+	Mono<Member> getUserById(String id);
+	Mono<Member> getAuthor(Message message);
+	Flux<Member> getAllMembers();
+	Mono<Message> replyToMessage(Message message, Consumer<MessageCreateSpec> reply);
+	Mono<Void> assignBadgeRoles(Member user, List<BadgeDTO> badges);
+	Mono<Void> assignDividerRoles(Member user);
+	Mono<Role> getRoleForBadge(BadgeDTO badge);
+	Mono<Role> getRoleByName(String name);
+	Mono<Void> notifyRequestRecieved(Message message);
+	Mono<Boolean> authorHasPermission(Message message, Permission permission);
+	Mono<Role> getRoleById(String id);
 }

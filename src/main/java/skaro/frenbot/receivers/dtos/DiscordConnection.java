@@ -4,17 +4,17 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class DiscordConnection {
-	private Long discordId;
+	private String discordId;
 	
 	public DiscordConnection() {
 		
 	}
 		
-	public Long getDiscordId() {
+	public String getDiscordId() {
 		return discordId;
 	}
 	
-	public void setDiscordId(Long discordId) {
+	public void setDiscordId(String discordId) {
 		this.discordId = discordId;
 	}
 	

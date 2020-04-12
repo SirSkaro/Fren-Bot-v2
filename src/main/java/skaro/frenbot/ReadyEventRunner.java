@@ -55,7 +55,7 @@ public class ReadyEventRunner implements CommandLineRunner {
 	}
 	
 	private boolean awardBelongsToMember(BadgeAwardDTO award, Member member) {
-		return award.getUser().getSocialProfile().getDiscordConnection().getDiscordId().equals(member.getId().asLong());
+		return award.getUser().getSocialProfile().getDiscordConnection().getDiscordId().equals(member.getId().asString());
 	}
 
 }
