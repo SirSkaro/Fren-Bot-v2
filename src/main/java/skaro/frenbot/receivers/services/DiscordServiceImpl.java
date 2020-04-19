@@ -57,9 +57,14 @@ public class DiscordServiceImpl implements DiscordService {
 	}
 
 	@Override
-	public Mono<Role> getRoleForBadge(BadgeDTO badge) {
+	public Mono<Role> getRoleById(String id) {
 		return fetchServer()
-				.flatMap(server -> server.getRoleById(Snowflake.of(badge.getDiscordRoleId())));
+				.flatMap(server -> server.getRoleById(Snowflake.of(id)));
+	}
+	
+	@Override
+	public Mono<Role> getRoleForBadge(BadgeDTO badge) {
+		return getRoleById(badge.getDiscordRoleId());
 	}
 
 	@Override
@@ -97,8 +102,9 @@ public class DiscordServiceImpl implements DiscordService {
 				.flatMap(roleId -> user.addRole(roleId))
 				.then();
 	}
-
+	
 	private Mono<Guild> fetchServer() {
 		return discordClient.getGuildById(discordConfig.getServerSnowflake());
 	}
+
 }

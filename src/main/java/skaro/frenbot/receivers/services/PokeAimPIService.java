@@ -20,6 +20,7 @@ public interface PokeAimPIService {
 	Mono<BadgeAwardDTO> awardBadge(Member user, Role role);
 	Mono<List<BadgeAwardDTO>> getAllAwards();
 	Optional<BadgeDTO> getMostValuedRankedBadge(List<BadgeDTO> badges);
-	Mono<BadgeDTO> getBadge(Long id);
+	Mono<BadgeDTO> getBadge(Long roleId);
+	Flux<BadgeDTO> getBadges();
 	
 }

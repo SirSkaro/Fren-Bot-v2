@@ -78,10 +78,21 @@ public class PokeAimPIServiceImpl implements PokeAimPIService {
 	}
 
 	@Override
-	public Mono<BadgeDTO> getBadge(Long id) {
-		String endpoint = String.format("%s/badge/discord/%d", baseURI, id);
-		ResponseEntity<BadgeDTO> result = restTemplate.getForEntity(endpoint, BadgeDTO.class);
-		return Mono.just(result.getBody());
+	public Mono<BadgeDTO> getBadge(Long roleId) {
+		String endpoint = String.format("%s/badge/discord/%d", baseURI, roleId);
+		try {
+			ResponseEntity<BadgeDTO> result = restTemplate.getForEntity(endpoint, BadgeDTO.class);
+			return Mono.just(result.getBody());
+		} catch(Exception e) {
+			return Mono.empty();
+		}
+	}
+
+	@Override
+	public Flux<BadgeDTO> getBadges() {
+		String endpoint = String.format("%s/badge", baseURI);
+		ResponseEntity<List<BadgeDTO>> result = restTemplate.exchange(endpoint, HttpMethod.GET, null, new ParameterizedTypeReference<List<BadgeDTO>>() {});
+		return Flux.fromIterable(result.getBody());
 	}
 
 }

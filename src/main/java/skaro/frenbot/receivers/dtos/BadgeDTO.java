@@ -11,7 +11,7 @@ public class BadgeDTO {
 	private String imageUri;
 	private String title;
 	private String description;
-	private Long discordRoleId;
+	private String discordRoleId;
 	
 	
 	public Integer getId() {
@@ -50,10 +50,10 @@ public class BadgeDTO {
 	public void setDescription(String description) {
 		this.description = description;
 	}
-	public Long getDiscordRoleId() {
+	public String getDiscordRoleId() {
 		return discordRoleId;
 	}
-	public void setDiscordRoleId(Long discordRoleId) {
+	public void setDiscordRoleId(String discordRoleId) {
 		this.discordRoleId = discordRoleId;
 	}
 	
