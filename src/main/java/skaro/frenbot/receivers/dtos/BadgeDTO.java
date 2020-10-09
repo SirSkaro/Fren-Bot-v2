@@ -1,9 +1,12 @@
 package skaro.frenbot.receivers.dtos;
 
+import java.io.Serializable;
+
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class BadgeDTO {
+public class BadgeDTO implements Serializable {
+	private static final long serialVersionUID = 1L;
 	
 	private Integer id;
 	private Integer pointThreshold;

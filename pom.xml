@@ -10,7 +10,7 @@
 	</parent>
 	<groupId>skaro.frenbot</groupId>
 	<artifactId>Fren-Bot</artifactId>
-	<version>1.0.9</version>
+	<version>1.0.10</version>
 	<name>Fren-Bot</name>
 	<description>Fren bot v2</description>
 
@@ -50,6 +50,10 @@
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-web</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-amqp</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework</groupId>
