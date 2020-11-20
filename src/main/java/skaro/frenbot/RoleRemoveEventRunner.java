@@ -14,9 +14,9 @@ import discord4j.core.event.domain.guild.MemberUpdateEvent;
 import discord4j.core.object.entity.Member;
 import discord4j.core.object.util.Snowflake;
 import reactor.core.publisher.Mono;
-import skaro.frenbot.receivers.dtos.BadgeDTO;
 import skaro.frenbot.receivers.services.DiscordService;
 import skaro.frenbot.receivers.services.PokeAimPIService;
+import skaro.pokeaimpi.sdk.resource.Badge;
 
 @Component
 @Order(value = Ordered.HIGHEST_PRECEDENCE)
@@ -47,7 +47,7 @@ public class RoleRemoveEventRunner implements CommandLineRunner {
 				.orElse(true);
 	}
 	
-	private Mono<List<BadgeDTO>> getBadgesToReassign(Set<Snowflake> currentRoles, Member member) {
+	private Mono<List<Badge>> getBadgesToReassign(Set<Snowflake> currentRoles, Member member) {
 		return apiService.getUserBadges(member)
 			.map(award -> award.getBadge())
 			.filter(badge -> !currentRoles.contains(Snowflake.of(badge.getId())))

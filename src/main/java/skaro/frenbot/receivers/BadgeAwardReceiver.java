@@ -14,10 +14,10 @@ import discord4j.core.spec.MessageCreateSpec;
 import reactor.core.publisher.Mono;
 import skaro.frenbot.commands.arguments.Argument;
 import skaro.frenbot.commands.arguments.BadgeAwardArgument;
-import skaro.frenbot.receivers.dtos.BadgeAwardDTO;
-import skaro.frenbot.receivers.dtos.BadgeDTO;
 import skaro.frenbot.receivers.services.DiscordService;
 import skaro.frenbot.receivers.services.PokeAimPIService;
+import skaro.pokeaimpi.sdk.resource.Badge;
+import skaro.pokeaimpi.sdk.resource.BadgeAwardRecord;
 
 public class BadgeAwardReceiver implements Receiver {
 
@@ -38,14 +38,14 @@ public class BadgeAwardReceiver implements Receiver {
 			.flatMap(reply -> discordService.replyToMessage(message, reply));
 	}
 	
-	private Mono<BadgeAwardDTO> awardBadge(Member user, Role role) {
+	private Mono<BadgeAwardRecord> awardBadge(Member user, Role role) {
 		return apiService.awardBadge(user, role)
 			.flatMap(award -> discordService.assignBadgeRoles(user, Arrays.asList(award.getBadge()))
 					.then(Mono.just(award)));
 	}
 	
-	private Consumer<MessageCreateSpec> formatResponse(BadgeAwardDTO badgeAward, Member user) {
-		BadgeDTO badge = badgeAward.getBadge();
+	private Consumer<MessageCreateSpec> formatResponse(BadgeAwardRecord badgeAward, Member user) {
+		Badge badge = badgeAward.getBadge();
 		String rewardTitle = String.format(":white_check_mark: Rewarded the %s badge to %s", badge.getTitle(), user.getDisplayName());
 		Consumer<EmbedCreateSpec> embedSpec = spec -> spec.setTitle(rewardTitle)
 				.setColor(Color.GREEN)

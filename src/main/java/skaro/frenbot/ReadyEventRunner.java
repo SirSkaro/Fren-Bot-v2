@@ -14,10 +14,10 @@ import discord4j.core.event.domain.lifecycle.ReadyEvent;
 import discord4j.core.object.entity.Member;
 import discord4j.core.object.util.Snowflake;
 import reactor.core.publisher.Mono;
-import skaro.frenbot.receivers.dtos.BadgeAwardDTO;
-import skaro.frenbot.receivers.dtos.BadgeDTO;
 import skaro.frenbot.receivers.services.DiscordService;
 import skaro.frenbot.receivers.services.PokeAimPIService;
+import skaro.pokeaimpi.sdk.resource.Badge;
+import skaro.pokeaimpi.sdk.resource.BadgeAwardRecord;
 
 @Component
 @Order(value = Ordered.HIGHEST_PRECEDENCE)
@@ -41,12 +41,12 @@ public class ReadyEventRunner implements CommandLineRunner {
 			.subscribe(arg -> System.out.println("all roles restored"));
 	}
 	
-	private Mono<Void> reassignMissingBadges(List<BadgeAwardDTO> allAwards, Member member) {
-		List<BadgeDTO> badgesToReassignToMember = getBadgesToReassign(allAwards, member);
+	private Mono<Void> reassignMissingBadges(List<BadgeAwardRecord> allAwards, Member member) {
+		List<Badge> badgesToReassignToMember = getBadgesToReassign(allAwards, member);
 		return discordService.assignBadgeRoles(member, badgesToReassignToMember);
 	}
 	
-	private List<BadgeDTO> getBadgesToReassign(List<BadgeAwardDTO> allAwards, Member member) {
+	private List<Badge> getBadgesToReassign(List<BadgeAwardRecord> allAwards, Member member) {
 		return allAwards.stream()
 				.filter(award -> awardBelongsToMember(award, member))
 				.map(award -> award.getBadge())
@@ -54,7 +54,7 @@ public class ReadyEventRunner implements CommandLineRunner {
 				.collect(Collectors.toList());
 	}
 	
-	private boolean awardBelongsToMember(BadgeAwardDTO award, Member member) {
+	private boolean awardBelongsToMember(BadgeAwardRecord award, Member member) {
 		return award.getUser().getSocialProfile().getDiscordConnection().getDiscordId().equals(member.getId().asString());
 	}
 

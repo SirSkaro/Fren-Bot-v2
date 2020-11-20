@@ -18,7 +18,7 @@ import discord4j.core.spec.MessageCreateSpec;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import skaro.frenbot.DiscordConfig;
-import skaro.frenbot.receivers.dtos.BadgeDTO;
+import skaro.pokeaimpi.sdk.resource.Badge;
 
 @Service
 public class DiscordServiceImpl implements DiscordService {
@@ -49,7 +49,7 @@ public class DiscordServiceImpl implements DiscordService {
 	}
 
 	@Override
-	public Mono<Void> assignBadgeRoles(Member user, List<BadgeDTO> badges) {
+	public Mono<Void> assignBadgeRoles(Member user, List<Badge> badges) {
 		return Flux.fromIterable(badges)
 				.map(badge -> Snowflake.of(badge.getDiscordRoleId()))
 				.flatMap(roleId -> user.addRole(roleId))
@@ -63,7 +63,7 @@ public class DiscordServiceImpl implements DiscordService {
 	}
 	
 	@Override
-	public Mono<Role> getRoleForBadge(BadgeDTO badge) {
+	public Mono<Role> getRoleForBadge(Badge badge) {
 		return getRoleById(badge.getDiscordRoleId());
 	}
 

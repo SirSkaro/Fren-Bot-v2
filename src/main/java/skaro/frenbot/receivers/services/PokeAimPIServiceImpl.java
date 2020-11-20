@@ -16,12 +16,12 @@ import discord4j.core.object.entity.Member;
 import discord4j.core.object.entity.Role;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import skaro.frenbot.receivers.dtos.BadgeAwardDTO;
-import skaro.frenbot.receivers.dtos.BadgeDTO;
 import skaro.frenbot.receivers.dtos.DTOBuilder;
-import skaro.frenbot.receivers.dtos.NewAwardsDTO;
-import skaro.frenbot.receivers.dtos.PointsDTO;
-import skaro.frenbot.receivers.dtos.UserProgressDTO;
+import skaro.pokeaimpi.sdk.request.PointAmount;
+import skaro.pokeaimpi.sdk.resource.Badge;
+import skaro.pokeaimpi.sdk.resource.BadgeAwardRecord;
+import skaro.pokeaimpi.sdk.resource.NewAwardList;
+import skaro.pokeaimpi.sdk.resource.UserProgress;
 
 @Service
 public class PokeAimPIServiceImpl implements PokeAimPIService {
@@ -32,56 +32,56 @@ public class PokeAimPIServiceImpl implements PokeAimPIService {
 	private RestTemplate restTemplate;
 	
 	@Override
-	public Mono<NewAwardsDTO> addPointsToUser(Member user, int points) {
-		PointsDTO request = DTOBuilder.of(PointsDTO::new)
-				.with(PointsDTO::setAmount, points)
+	public Mono<NewAwardList> addPointsToUser(Member user, int points) {
+		PointAmount request = DTOBuilder.of(PointAmount::new)
+				.with(PointAmount::setAmount, points)
 				.build();
 		
 		String endpoint = String.format("%s/user/discord/%d/points/add", baseURI, user.getId().asLong());
-		NewAwardsDTO result = restTemplate.postForObject(endpoint, request, NewAwardsDTO.class);
+		NewAwardList result = restTemplate.postForObject(endpoint, request, NewAwardList.class);
 		return Mono.just(result)
-				.doOnNext(newAwards -> newAwards.getBadges().sort((BadgeDTO badge1, BadgeDTO badge2) -> badge1.getPointThreshold().compareTo(badge2.getPointThreshold())));
+				.doOnNext(newAwards -> newAwards.getBadges().sort((Badge badge1, Badge badge2) -> badge1.getPointThreshold().compareTo(badge2.getPointThreshold())));
 	}
 
 	@Override
-	public Mono<UserProgressDTO> getUserProgress(Member user) {
+	public Mono<UserProgress> getUserProgress(Member user) {
 		String endpoint = String.format("%s/user/discord/%d/progress", baseURI, user.getId().asLong());
-		UserProgressDTO result = restTemplate.getForObject(endpoint, UserProgressDTO.class);
+		UserProgress result = restTemplate.getForObject(endpoint, UserProgress.class);
 		return Mono.just(result);
 	}
 
 	@Override
-	public Flux<BadgeAwardDTO> getUserBadges(Member user) {
+	public Flux<BadgeAwardRecord> getUserBadges(Member user) {
 		String endpoint = String.format("%s/award?userDiscordId=%d", baseURI, user.getId().asLong());
-		ResponseEntity<List<BadgeAwardDTO>> result = restTemplate.exchange(endpoint, HttpMethod.GET, null, new ParameterizedTypeReference<List<BadgeAwardDTO>>() {});
+		ResponseEntity<List<BadgeAwardRecord>> result = restTemplate.exchange(endpoint, HttpMethod.GET, null, new ParameterizedTypeReference<List<BadgeAwardRecord>>() {});
 		
 		return Flux.fromIterable(result.getBody());
 	}
 
 	@Override
-	public Mono<BadgeAwardDTO> awardBadge(Member user, Role role) {
+	public Mono<BadgeAwardRecord> awardBadge(Member user, Role role) {
 		String endpoint = String.format("%s/award/discord/user/%d/role/%d", baseURI, user.getId().asLong(), role.getId().asLong());
-		BadgeAwardDTO result = restTemplate.postForObject(endpoint, null, BadgeAwardDTO.class);
+		BadgeAwardRecord result = restTemplate.postForObject(endpoint, null, BadgeAwardRecord.class);
 		return Mono.just(result);
 	}
 
 	@Override
-	public Mono<List<BadgeAwardDTO>> getAllAwards() {
+	public Mono<List<BadgeAwardRecord>> getAllAwards() {
 		String endpoint = String.format("%s/award", baseURI);
-		ResponseEntity<List<BadgeAwardDTO>> result = restTemplate.exchange(endpoint, HttpMethod.GET, null, new ParameterizedTypeReference<List<BadgeAwardDTO>>() {});
+		ResponseEntity<List<BadgeAwardRecord>> result = restTemplate.exchange(endpoint, HttpMethod.GET, null, new ParameterizedTypeReference<List<BadgeAwardRecord>>() {});
 		return Mono.just(result.getBody());
 	}
 	
 	@Override
-	public Optional<BadgeDTO> getMostValuedRankedBadge(List<BadgeDTO> badges) {
-		return badges.stream().max(Comparator.comparing(BadgeDTO::getPointThreshold));
+	public Optional<Badge> getMostValuedRankedBadge(List<Badge> badges) {
+		return badges.stream().max(Comparator.comparing(Badge::getPointThreshold));
 	}
 
 	@Override
-	public Mono<BadgeDTO> getBadge(Long roleId) {
+	public Mono<Badge> getBadge(Long roleId) {
 		String endpoint = String.format("%s/badge/discord/%d", baseURI, roleId);
 		try {
-			ResponseEntity<BadgeDTO> result = restTemplate.getForEntity(endpoint, BadgeDTO.class);
+			ResponseEntity<Badge> result = restTemplate.getForEntity(endpoint, Badge.class);
 			return Mono.just(result.getBody());
 		} catch(Exception e) {
 			return Mono.empty();
@@ -89,9 +89,9 @@ public class PokeAimPIServiceImpl implements PokeAimPIService {
 	}
 
 	@Override
-	public Flux<BadgeDTO> getBadges() {
+	public Flux<Badge> getBadges() {
 		String endpoint = String.format("%s/badge", baseURI);
-		ResponseEntity<List<BadgeDTO>> result = restTemplate.exchange(endpoint, HttpMethod.GET, null, new ParameterizedTypeReference<List<BadgeDTO>>() {});
+		ResponseEntity<List<Badge>> result = restTemplate.exchange(endpoint, HttpMethod.GET, null, new ParameterizedTypeReference<List<Badge>>() {});
 		return Flux.fromIterable(result.getBody());
 	}
 

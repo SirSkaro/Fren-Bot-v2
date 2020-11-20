@@ -12,9 +12,9 @@ import discord4j.core.DiscordClient;
 import discord4j.core.event.domain.guild.MemberJoinEvent;
 import discord4j.core.object.entity.Member;
 import reactor.core.publisher.Mono;
-import skaro.frenbot.receivers.dtos.BadgeDTO;
 import skaro.frenbot.receivers.services.DiscordService;
 import skaro.frenbot.receivers.services.PokeAimPIService;
+import skaro.pokeaimpi.sdk.resource.Badge;
 
 @Component
 @Order(value = Ordered.HIGHEST_PRECEDENCE)
@@ -42,7 +42,7 @@ public class MemberJoinEventRunner implements CommandLineRunner {
 			.flatMap(badges -> discordService.assignBadgeRoles(member, badges));
 	}
 	
-	private Mono<List<BadgeDTO>> getAwardedBadgesForUser(Member member) {
+	private Mono<List<Badge>> getAwardedBadgesForUser(Member member) {
 		return apiService.getUserBadges(member)
 				.map(award -> award.getBadge())
 				.collectList();

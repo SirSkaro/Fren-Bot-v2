@@ -13,10 +13,10 @@ import discord4j.core.spec.MessageCreateSpec;
 import reactor.core.publisher.Mono;
 import skaro.frenbot.commands.arguments.Argument;
 import skaro.frenbot.commands.arguments.PointAwardArgument;
-import skaro.frenbot.receivers.dtos.BadgeDTO;
-import skaro.frenbot.receivers.dtos.NewAwardsDTO;
 import skaro.frenbot.receivers.services.DiscordService;
 import skaro.frenbot.receivers.services.PokeAimPIService;
+import skaro.pokeaimpi.sdk.resource.Badge;
+import skaro.pokeaimpi.sdk.resource.NewAwardList;
 
 public class SilentPointAwardReceiver implements Receiver {
 	
@@ -36,9 +36,9 @@ public class SilentPointAwardReceiver implements Receiver {
 						.flatMap(rewardMessageSpec -> discordService.replyToMessage(message, rewardMessageSpec)));
 	}
 	
-	private Mono<Consumer<MessageCreateSpec>> processAwards(NewAwardsDTO newAwards, Member user) {
-		List<BadgeDTO> sortedBadges = newAwards.getBadges();
-		BadgeDTO mostValuedBadge = sortedBadges.get(sortedBadges.size() - 1);
+	private Mono<Consumer<MessageCreateSpec>> processAwards(NewAwardList newAwards, Member user) {
+		List<Badge> sortedBadges = newAwards.getBadges();
+		Badge mostValuedBadge = sortedBadges.get(sortedBadges.size() - 1);
 		
 		return discordService.assignBadgeRoles(user, sortedBadges)
 				.then(discordService.getRoleForBadge(mostValuedBadge))
@@ -46,8 +46,8 @@ public class SilentPointAwardReceiver implements Receiver {
 				.map(embedConsumer -> (MessageCreateSpec spec) -> spec.setEmbed(embedConsumer));
 	}
 	
-	private Consumer<EmbedCreateSpec> createAwardNotification(List<BadgeDTO> sortedBadges, Member user, Role role) {
-		BadgeDTO mostValuedBadge = sortedBadges.get(sortedBadges.size() - 1);
+	private Consumer<EmbedCreateSpec> createAwardNotification(List<Badge> sortedBadges, Member user, Role role) {
+		Badge mostValuedBadge = sortedBadges.get(sortedBadges.size() - 1);
 		
 		Consumer<EmbedCreateSpec> embedSpec = spec -> spec.setThumbnail(mostValuedBadge.getImageUri());
 		embedSpec = embedSpec.andThen(spec -> spec.setDescription(createDescription(sortedBadges, user)));
@@ -57,11 +57,11 @@ public class SilentPointAwardReceiver implements Receiver {
 		return embedSpec;
 	}
 	
-	private String createDescription(List<BadgeDTO> badges, Member user) {
+	private String createDescription(List<Badge> badges, Member user) {
 		StringBuilder builder = new StringBuilder();
 		
 		builder.append("Congratulations "+ user.getUsername() +"! You've earned:");
-		for (BadgeDTO badge : badges) {
+		for (Badge badge : badges) {
 			builder.append("\n:small_orange_diamond:");
 			builder.append(String.format("the **__%s__** badge for earning **__%d__** points", badge.getTitle(), badge.getPointThreshold()));
 		}

@@ -18,7 +18,7 @@ import reactor.core.publisher.Mono;
 import skaro.frenbot.DiscordConfig;
 import skaro.frenbot.api.RoleQuery;
 import skaro.frenbot.api.resources.DiscordRole;
-import skaro.frenbot.receivers.dtos.BadgeDTO;
+import skaro.pokeaimpi.sdk.resource.Badge;
 
 @Service
 public class RoleStoreServiceImpl implements RoleStoreService {
@@ -62,13 +62,13 @@ public class RoleStoreServiceImpl implements RoleStoreService {
 			.flatMapMany(populatedRoles -> Flux.fromIterable(populatedRoles));
 	}
 	
-	private List<DiscordRole> combineMetadata(List<RoleBean> roleBeans, Map<Long, BadgeDTO> badges) {
+	private List<DiscordRole> combineMetadata(List<RoleBean> roleBeans, Map<Long, Badge> badges) {
 		return roleBeans.stream()
 				.map(role -> badges.containsKey(role.getId()) ? combineMetadata(role, badges.get(role.getId())) : combineMetadata(role))
 				.collect(Collectors.toList());
 	}
 	
-	private DiscordRole combineMetadata(RoleBean role, BadgeDTO badge) {
+	private DiscordRole combineMetadata(RoleBean role, Badge badge) {
 		DiscordRole result = mapper.convertValue(role, DiscordRole.class);
 		result.setAssignedBadgeId(badge.getId());
 		result.setIsReserved(true);
