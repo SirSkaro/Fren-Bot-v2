@@ -6,10 +6,10 @@ import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
-import discord4j.core.DiscordClient;
+import discord4j.core.GatewayDiscordClient;
 import discord4j.core.event.domain.message.MessageCreateEvent;
 import discord4j.core.object.entity.Message;
-import discord4j.core.object.entity.PrivateChannel;
+import discord4j.core.object.entity.channel.PrivateChannel;
 import reactor.core.publisher.Mono;
 import skaro.frenbot.invokers.MessageCreateInvoker;
 
@@ -18,7 +18,7 @@ import skaro.frenbot.invokers.MessageCreateInvoker;
 public class NewMessageEventRunner implements CommandLineRunner {
 
 	@Autowired
-	private DiscordClient discordClient;
+	private GatewayDiscordClient discordClient;
 	@Autowired
 	private MessageCreateInvoker invoker;
 	

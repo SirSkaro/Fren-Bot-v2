@@ -6,8 +6,8 @@ import org.springframework.context.annotation.Profile;
 
 import skaro.pokeaimpi.sdk.messaging.BadgeEventMessage;
 
-@Profile("pub-sub")
-@RabbitListener(queues = "#{@messagingProperties.badges}")
+@Profile(MessagingConfig.MESSAGING_PROFILE)
+@RabbitListener(queues = MessagingConfig.BADGE_QUEUE_NAME)
 public class BadgeEventHandler {
 
 	@RabbitHandler

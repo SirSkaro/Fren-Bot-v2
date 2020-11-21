@@ -8,7 +8,7 @@ import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
-import discord4j.core.DiscordClient;
+import discord4j.core.GatewayDiscordClient;
 import discord4j.core.event.domain.guild.MemberJoinEvent;
 import discord4j.core.object.entity.Member;
 import reactor.core.publisher.Mono;
@@ -21,7 +21,7 @@ import skaro.pokeaimpi.sdk.resource.Badge;
 public class MemberJoinEventRunner implements CommandLineRunner {
 
 	@Autowired
-	private DiscordClient discordClient;
+	private GatewayDiscordClient discordClient;
 	@Autowired
 	private DiscordService discordService;
 	@Autowired

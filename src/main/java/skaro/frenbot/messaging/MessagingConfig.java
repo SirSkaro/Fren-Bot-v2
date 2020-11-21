@@ -1,30 +1,41 @@
 package skaro.frenbot.messaging;
 
-import javax.validation.Valid;
+import static skaro.pokeaimpi.sdk.config.PokeAimPiSdkMessagingConfig.BADGE_FANOUT_BEAN;
 
+import org.springframework.amqp.core.Binding;
+import org.springframework.amqp.core.BindingBuilder;
+import org.springframework.amqp.core.FanoutExchange;
 import org.springframework.amqp.core.Queue;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.Profile;
 
+import skaro.pokeaimpi.sdk.config.PokeAimPiSdkMessagingConfig;
 
 @Configuration
-@Profile("pub-sub")
+@Profile(MessagingConfig.MESSAGING_PROFILE)
+@Import(PokeAimPiSdkMessagingConfig.class)
 public class MessagingConfig {
+	public static final String MESSAGING_PROFILE = "pub-sub";
+	public static final String BADGE_QUEUE_NAME = "badges";
 	
-	@Bean("messagingProperties")
-	@ConfigurationProperties("skaro.pokeaimpi.messaging.queue")
-	@Valid
-	public MessagingProperties getMessagingProperties() {
-		return new MessagingProperties();
+	private static final String BADGE_QUEUE_BEAN = "badgeQueue";
+	private static final String BADGE_BINDING_BEAN = "badgeBinding";
+	
+	@Bean(BADGE_QUEUE_BEAN)
+	@Autowired
+	public Queue getBadgesQueue() {
+		return new Queue(BADGE_QUEUE_NAME);
 	}
 	
-	@Bean
+	@Bean(BADGE_BINDING_BEAN)
 	@Autowired
-	public Queue getBadgesQueue(MessagingProperties properties) {
-		return new Queue(properties.getBadges());
+	public Binding getBadgeBinding(@Qualifier(BADGE_FANOUT_BEAN) FanoutExchange exchange, 
+			@Qualifier(BADGE_QUEUE_BEAN) Queue queue) {
+		return BindingBuilder.bind(queue).to(exchange);
 	}
 	
 	@Bean

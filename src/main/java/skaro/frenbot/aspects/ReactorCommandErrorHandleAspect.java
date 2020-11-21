@@ -1,6 +1,5 @@
 package skaro.frenbot.aspects;
 
-import java.awt.Color;
 import java.util.function.Consumer;
 
 import org.aspectj.lang.ProceedingJoinPoint;
@@ -12,6 +11,7 @@ import org.springframework.stereotype.Component;
 import discord4j.core.object.entity.Message;
 import discord4j.core.spec.EmbedCreateSpec;
 import discord4j.core.spec.MessageCreateSpec;
+import discord4j.rest.util.Color;
 import reactor.core.publisher.Mono;
 import skaro.frenbot.commands.arguments.UsageHelp;
 import skaro.frenbot.commands.parsers.FlagDescriptionPair;

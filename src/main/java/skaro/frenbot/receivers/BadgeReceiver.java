@@ -1,6 +1,6 @@
 package skaro.frenbot.receivers;
 
-import java.awt.Color;
+import discord4j.rest.util.Color;
 import java.util.function.Consumer;
 
 import org.springframework.beans.factory.annotation.Autowired;

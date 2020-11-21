@@ -21,7 +21,7 @@ public class RegexParser implements TextParser {
 	
 	@Override
 	public Optional<ParsedText> parseMessageContent(Message message) {
-		return message.getContent()
+		return Optional.ofNullable(message.getContent())
 			.map(messageContent -> expectedPattern.matcher(messageContent))
 			.filter(matcher -> matcher.find())
 			.flatMap(matcher -> assembleParsedText(matcher));

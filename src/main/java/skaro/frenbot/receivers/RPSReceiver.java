@@ -1,6 +1,5 @@
 package skaro.frenbot.receivers;
 
-import java.awt.Color;
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -10,6 +9,7 @@ import discord4j.core.object.entity.Member;
 import discord4j.core.object.entity.Message;
 import discord4j.core.spec.EmbedCreateSpec;
 import discord4j.core.spec.MessageCreateSpec;
+import discord4j.rest.util.Color;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 import skaro.frenbot.commands.arguments.Argument;

@@ -5,7 +5,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import discord4j.core.object.entity.Message;
-import discord4j.core.object.util.Permission;
+import discord4j.rest.util.Permission;
 import reactor.core.publisher.Mono;
 import skaro.frenbot.aspects.RequireDiscordPermission;
 import skaro.frenbot.commands.arguments.BadgeAwardArgument;

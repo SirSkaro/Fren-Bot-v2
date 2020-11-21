@@ -1,6 +1,6 @@
 package skaro.frenbot;
 
-import discord4j.core.object.util.Snowflake;
+import discord4j.common.util.Snowflake;
 
 public class DiscordRoleDivider {
 	
