@@ -1,6 +1,6 @@
 package skaro.frenbot.aspects;
 
-import java.awt.Color;
+import discord4j.rest.util.Color;
 import java.lang.reflect.Method;
 import java.util.function.Consumer;
 
@@ -12,9 +12,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import discord4j.core.object.entity.Message;
-import discord4j.core.object.util.Permission;
 import discord4j.core.spec.EmbedCreateSpec;
 import discord4j.core.spec.MessageCreateSpec;
+import discord4j.rest.util.Permission;
 import reactor.core.publisher.Mono;
 import skaro.frenbot.receivers.services.DiscordService;
 

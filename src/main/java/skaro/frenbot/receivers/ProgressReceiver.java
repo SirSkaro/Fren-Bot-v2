@@ -2,7 +2,7 @@ package skaro.frenbot.receivers;
 
 import java.util.function.Consumer;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import discord4j.core.object.entity.Member;
@@ -12,10 +12,10 @@ import discord4j.core.spec.EmbedCreateSpec;
 import discord4j.core.spec.MessageCreateSpec;
 import reactor.core.publisher.Mono;
 import skaro.frenbot.commands.arguments.Argument;
-import skaro.frenbot.receivers.dtos.BadgeDTO;
-import skaro.frenbot.receivers.dtos.UserProgressDTO;
 import skaro.frenbot.receivers.services.DiscordService;
 import skaro.frenbot.receivers.services.PokeAimPIService;
+import skaro.pokeaimpi.sdk.resource.Badge;
+import skaro.pokeaimpi.sdk.resource.UserProgress;
 
 public class ProgressReceiver implements Receiver {
 
@@ -33,8 +33,8 @@ public class ProgressReceiver implements Receiver {
 					.flatMap(messageSpec -> discordService.replyToMessage(message, messageSpec))));
 	}
 	
-	private Mono<Consumer<MessageCreateSpec>> formatMessage(UserProgressDTO userProgress, Member user) {
-		BadgeDTO currentBadge = userProgress.getCurrentHighestBadge();
+	private Mono<Consumer<MessageCreateSpec>> formatMessage(UserProgress userProgress, Member user) {
+		Badge currentBadge = userProgress.getCurrentHighestBadge();
 		
 		if(currentBadge != null) {
 			return discordService.getRoleForBadge(currentBadge)
@@ -46,18 +46,18 @@ public class ProgressReceiver implements Receiver {
 		return Mono.just(messageSpec);
 	}
 	
-	private Consumer<EmbedCreateSpec> formatMessageEmbed(UserProgressDTO userProgress, Member user) {
+	private Consumer<EmbedCreateSpec> formatMessageEmbed(UserProgress userProgress, Member user) {
 		String authorIconURI = userProgress.getCurrentHighestBadge() != null ? userProgress.getCurrentHighestBadge().getImageUri() : null;
 		return spec -> spec.setAuthor(user.getDisplayName(), null, authorIconURI)
 				.setDescription(createProgressBar(userProgress));
 	}
 	
-	private Consumer<EmbedCreateSpec> formatMessageEmbed(UserProgressDTO userProgress, Member user, Role role) {
+	private Consumer<EmbedCreateSpec> formatMessageEmbed(UserProgress userProgress, Member user, Role role) {
 		return formatMessageEmbed(userProgress, user)
 				.andThen(spec -> spec.setColor(role.getColor()));
 	}
 	
-	private String createProgressBar(UserProgressDTO userProgress) {
+	private String createProgressBar(UserProgress userProgress) {
 		boolean hasAnyBadge = userProgress.getCurrentHighestBadge() != null;
 		boolean hasBadgeToEarn = userProgress.getNextBadge() != null;
 
@@ -123,7 +123,7 @@ public class ProgressReceiver implements Receiver {
 		return builder.toString();
 	}
 	
-	private int calculatePercentage(UserProgressDTO userProgress) {
+	private int calculatePercentage(UserProgress userProgress) {
 		int currentPoints = userProgress.getCurrentPoints();
 		int neededPoints = userProgress.getNextBadge().getPointThreshold();
 		return ((int)Math.floor(100.0 * currentPoints / neededPoints));

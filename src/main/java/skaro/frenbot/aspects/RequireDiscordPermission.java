@@ -5,7 +5,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import discord4j.core.object.util.Permission;
+import discord4j.rest.util.Permission;
 
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)

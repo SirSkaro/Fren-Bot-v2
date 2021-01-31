@@ -1,6 +1,6 @@
 package skaro.frenbot.receivers;
 
-import java.awt.Color;
+import discord4j.rest.util.Color;
 import java.util.function.Consumer;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,9 +12,9 @@ import discord4j.core.spec.MessageCreateSpec;
 import reactor.core.publisher.Mono;
 import skaro.frenbot.commands.arguments.Argument;
 import skaro.frenbot.commands.arguments.BadgeArgument;
-import skaro.frenbot.receivers.dtos.BadgeDTO;
 import skaro.frenbot.receivers.services.DiscordService;
 import skaro.frenbot.receivers.services.PokeAimPIService;
+import skaro.pokeaimpi.sdk.resource.Badge;
 
 public class BadgeReceiver implements Receiver {
 
@@ -34,7 +34,7 @@ public class BadgeReceiver implements Receiver {
 				.flatMap(reply -> discordService.replyToMessage(message, reply));
 	}
 	
-	private Consumer<MessageCreateSpec> formatResponse(BadgeDTO badge, Role role) {
+	private Consumer<MessageCreateSpec> formatResponse(Badge badge, Role role) {
 		String threshold = badge.getCanBeEarnedWithPoints() ?
 				badge.getPointThreshold().toString() + " points"
 				: "Reward only" ;

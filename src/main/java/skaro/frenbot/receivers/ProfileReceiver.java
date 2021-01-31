@@ -1,6 +1,5 @@
 package skaro.frenbot.receivers;
 
-import java.awt.Color;
 import java.sql.Date;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -15,13 +14,14 @@ import discord4j.core.object.entity.Member;
 import discord4j.core.object.entity.Message;
 import discord4j.core.spec.EmbedCreateSpec;
 import discord4j.core.spec.MessageCreateSpec;
+import discord4j.rest.util.Color;
 import reactor.core.publisher.Mono;
 import skaro.frenbot.commands.arguments.Argument;
 import skaro.frenbot.commands.arguments.UserArgument;
-import skaro.frenbot.receivers.dtos.BadgeAwardDTO;
-import skaro.frenbot.receivers.dtos.BadgeDTO;
 import skaro.frenbot.receivers.services.DiscordService;
 import skaro.frenbot.receivers.services.PokeAimPIService;
+import skaro.pokeaimpi.sdk.resource.Badge;
+import skaro.pokeaimpi.sdk.resource.BadgeAwardRecord;
 
 public class ProfileReceiver implements Receiver {
 
@@ -40,13 +40,13 @@ public class ProfileReceiver implements Receiver {
 				.flatMap(reply -> discordService.replyToMessage(message, reply));
 	}
 	
-	private Mono<Consumer<MessageCreateSpec>> formatProfile(Member user, List<BadgeAwardDTO> awards) {
+	private Mono<Consumer<MessageCreateSpec>> formatProfile(Member user, List<BadgeAwardRecord> awards) {
 		return getColorOfHighestRankBadge(awards)
 				.map(color -> formatProfile(user, awards, color))
 				.map(embedConsumer -> (MessageCreateSpec spec) -> spec.setEmbed(embedConsumer));
 	}
 	
-	private Consumer<EmbedCreateSpec> formatProfile(Member user, List<BadgeAwardDTO> awards, Color color) {
+	private Consumer<EmbedCreateSpec> formatProfile(Member user, List<BadgeAwardRecord> awards, Color color) {
 		DateFormat dateFormat = new SimpleDateFormat("MMM dd, yyyy", Locale.US);
 		
 		String earnedAwards = awards.stream()
@@ -67,8 +67,8 @@ public class ProfileReceiver implements Receiver {
 				.setFooter("joined "+dateFormat.format(Date.from(user.getJoinTime())), null);
 	}
 	
-	private Mono<Color> getColorOfHighestRankBadge(List<BadgeAwardDTO> awards) {
-		List<BadgeDTO> badges = awards.stream()
+	private Mono<Color> getColorOfHighestRankBadge(List<BadgeAwardRecord> awards) {
+		List<Badge> badges = awards.stream()
 				.map(award -> award.getBadge())
 				.collect(Collectors.toList());
 

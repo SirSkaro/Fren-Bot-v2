@@ -1,16 +1,16 @@
 package skaro.frenbot.receivers;
 
 import discord4j.core.object.entity.Member;
-import skaro.frenbot.receivers.dtos.NewAwardsDTO;
 import skaro.frenbot.receivers.services.RPSOption;
+import skaro.pokeaimpi.sdk.resource.NewAwardList;
 
 public class RPSResult {
 
 	private Member winner;
 	private RPSOption winningOption;
-	private NewAwardsDTO apiAwards;
+	private NewAwardList apiAwards;
 	
-	public RPSResult(Member winner, RPSOption winningOption, NewAwardsDTO awards) {
+	public RPSResult(Member winner, RPSOption winningOption, NewAwardList awards) {
 		this.winner = winner;
 		this.winningOption = winningOption;
 		this.apiAwards = awards;
@@ -28,10 +28,10 @@ public class RPSResult {
 	public void setWinningOption(RPSOption winningOption) {
 		this.winningOption = winningOption;
 	}
-	public NewAwardsDTO getApiAwards() {
+	public NewAwardList getApiAwards() {
 		return apiAwards;
 	}
-	public void setApiAwards(NewAwardsDTO apiAwards) {
+	public void setApiAwards(NewAwardList apiAwards) {
 		this.apiAwards = apiAwards;
 	}
 	

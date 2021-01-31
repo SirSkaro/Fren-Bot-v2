@@ -7,20 +7,20 @@ import discord4j.core.object.entity.Member;
 import discord4j.core.object.entity.Role;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import skaro.frenbot.receivers.dtos.BadgeAwardDTO;
-import skaro.frenbot.receivers.dtos.BadgeDTO;
-import skaro.frenbot.receivers.dtos.NewAwardsDTO;
-import skaro.frenbot.receivers.dtos.UserProgressDTO;
+import skaro.pokeaimpi.sdk.resource.Badge;
+import skaro.pokeaimpi.sdk.resource.BadgeAwardRecord;
+import skaro.pokeaimpi.sdk.resource.NewAwardList;
+import skaro.pokeaimpi.sdk.resource.UserProgress;
 
 public interface PokeAimPIService {
 
-	Mono<NewAwardsDTO> addPointsToUser(Member user, int points);
-	Mono<UserProgressDTO> getUserProgress(Member user);
-	Flux<BadgeAwardDTO> getUserBadges(Member user);
-	Mono<BadgeAwardDTO> awardBadge(Member user, Role role);
-	Mono<List<BadgeAwardDTO>> getAllAwards();
-	Optional<BadgeDTO> getMostValuedRankedBadge(List<BadgeDTO> badges);
-	Mono<BadgeDTO> getBadge(Long roleId);
-	Flux<BadgeDTO> getBadges();
+	Mono<NewAwardList> addPointsToUser(Member user, int points);
+	Mono<UserProgress> getUserProgress(Member user);
+	Flux<BadgeAwardRecord> getUserBadges(Member user);
+	Mono<BadgeAwardRecord> awardBadge(Member user, Role role);
+	Mono<List<BadgeAwardRecord>> getAllAwards();
+	Optional<Badge> getMostValuedRankedBadge(List<Badge> badges);
+	Mono<Badge> getBadge(Long roleId);
+	Flux<Badge> getBadges();
 	
 }

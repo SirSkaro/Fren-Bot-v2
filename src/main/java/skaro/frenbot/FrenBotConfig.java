@@ -14,7 +14,7 @@ import org.springframework.web.client.RestTemplate;
 
 import discord4j.core.DiscordClient;
 import discord4j.core.DiscordClientBuilder;
-import discord4j.core.event.domain.lifecycle.ReadyEvent;
+import discord4j.core.GatewayDiscordClient;
 import skaro.frenbot.commands.Command;
 import skaro.frenbot.commands.CommandFactory;
 import skaro.frenbot.commands.CommandFactoryImpl;
@@ -26,25 +26,21 @@ import skaro.frenbot.invokers.MessageCreateInvoker;
 
 @Configuration
 public class FrenBotConfig {
-	
 	@Autowired
 	CommandConfig commandConfig;
 
 	@Bean
 	public RestTemplate getRestTemplate(RestTemplateBuilder builder) {
+		
 		return builder.build();
 	}
 
 	@Bean
 	@Autowired
 	@Scope(value = ConfigurableBeanFactory.SCOPE_SINGLETON)
-	public DiscordClient getDiscordClient(@Value("${discord.token}") String token) {
-		DiscordClient client = new DiscordClientBuilder(token).build();
-
-		client.getEventDispatcher().on(ReadyEvent.class)
-		.subscribe(ready -> System.out.println("Logged in as " + ready.getSelf().getUsername()));
-
-		return client;
+	public GatewayDiscordClient getDiscordClient(@Value("${discord.token}") String token) {
+		DiscordClient client = DiscordClientBuilder.create(token).build();
+		return client.login().block();
 	}
 	
 	@Bean

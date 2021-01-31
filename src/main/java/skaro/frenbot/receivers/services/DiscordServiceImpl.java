@@ -6,25 +6,25 @@ import java.util.function.Consumer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import discord4j.core.DiscordClient;
+import discord4j.common.util.Snowflake;
+import discord4j.core.GatewayDiscordClient;
 import discord4j.core.object.entity.Guild;
 import discord4j.core.object.entity.Member;
 import discord4j.core.object.entity.Message;
 import discord4j.core.object.entity.Role;
-import discord4j.core.object.util.Permission;
-import discord4j.core.object.util.PermissionSet;
-import discord4j.core.object.util.Snowflake;
 import discord4j.core.spec.MessageCreateSpec;
+import discord4j.rest.util.Permission;
+import discord4j.rest.util.PermissionSet;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import skaro.frenbot.DiscordConfig;
-import skaro.frenbot.receivers.dtos.BadgeDTO;
+import skaro.pokeaimpi.sdk.resource.Badge;
 
 @Service
 public class DiscordServiceImpl implements DiscordService {
 
 	@Autowired
-	private DiscordClient discordClient;
+	private GatewayDiscordClient discordClient;
 	@Autowired
 	private DiscordConfig discordConfig;
 	
@@ -49,7 +49,7 @@ public class DiscordServiceImpl implements DiscordService {
 	}
 
 	@Override
-	public Mono<Void> assignBadgeRoles(Member user, List<BadgeDTO> badges) {
+	public Mono<Void> assignBadgeRoles(Member user, List<Badge> badges) {
 		return Flux.fromIterable(badges)
 				.map(badge -> Snowflake.of(badge.getDiscordRoleId()))
 				.flatMap(roleId -> user.addRole(roleId))
@@ -63,7 +63,7 @@ public class DiscordServiceImpl implements DiscordService {
 	}
 	
 	@Override
-	public Mono<Role> getRoleForBadge(BadgeDTO badge) {
+	public Mono<Role> getRoleForBadge(Badge badge) {
 		return getRoleById(badge.getDiscordRoleId());
 	}
 
@@ -100,7 +100,13 @@ public class DiscordServiceImpl implements DiscordService {
 				.flatMap(divider -> Flux.just(divider.getTopDivider(), divider.getBottomDivider()))
 				.filter(roleId -> !user.getRoleIds().contains(roleId))
 				.flatMap(roleId -> user.addRole(roleId))
-				.then();
+				.then();	
+	}
+	
+	@Override
+	public Mono<Void> deleteRole(String roleId) {
+		return discordClient.getRoleById(discordConfig.getServerSnowflake(), Snowflake.of(roleId))
+			.flatMap(Role::delete);
 	}
 	
 	private Mono<Guild> fetchServer() {

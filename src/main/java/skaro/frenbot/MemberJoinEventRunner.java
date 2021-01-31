@@ -8,20 +8,20 @@ import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
-import discord4j.core.DiscordClient;
+import discord4j.core.GatewayDiscordClient;
 import discord4j.core.event.domain.guild.MemberJoinEvent;
 import discord4j.core.object.entity.Member;
 import reactor.core.publisher.Mono;
-import skaro.frenbot.receivers.dtos.BadgeDTO;
 import skaro.frenbot.receivers.services.DiscordService;
 import skaro.frenbot.receivers.services.PokeAimPIService;
+import skaro.pokeaimpi.sdk.resource.Badge;
 
 @Component
 @Order(value = Ordered.HIGHEST_PRECEDENCE)
 public class MemberJoinEventRunner implements CommandLineRunner {
 
 	@Autowired
-	private DiscordClient discordClient;
+	private GatewayDiscordClient discordClient;
 	@Autowired
 	private DiscordService discordService;
 	@Autowired
@@ -33,7 +33,7 @@ public class MemberJoinEventRunner implements CommandLineRunner {
 			.map(event -> event.getMember())
 			.flatMap(member -> restoreRolesForAwardedBadges(member)
 					.then(discordService.assignDividerRoles(member)))
-			.onErrorResume(throwable -> Mono.empty())
+			.onErrorResume(throwable -> {throwable.printStackTrace(); return Mono.empty();})
 			.subscribe(arg -> System.out.println("member join handled"));
 	}
 	
@@ -42,7 +42,7 @@ public class MemberJoinEventRunner implements CommandLineRunner {
 			.flatMap(badges -> discordService.assignBadgeRoles(member, badges));
 	}
 	
-	private Mono<List<BadgeDTO>> getAwardedBadgesForUser(Member member) {
+	private Mono<List<Badge>> getAwardedBadgesForUser(Member member) {
 		return apiService.getUserBadges(member)
 				.map(award -> award.getBadge())
 				.collectList();

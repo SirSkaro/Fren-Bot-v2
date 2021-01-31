@@ -10,21 +10,20 @@ import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import discord4j.core.DiscordClient;
-import discord4j.core.StateHolder;
-import discord4j.core.object.data.stored.RoleBean;
+import discord4j.core.GatewayDiscordClient;
+import discord4j.core.state.StateView;
+import discord4j.discordjson.json.RoleData;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import skaro.frenbot.DiscordConfig;
 import skaro.frenbot.api.RoleQuery;
 import skaro.frenbot.api.resources.DiscordRole;
-import skaro.frenbot.receivers.dtos.BadgeDTO;
+import skaro.pokeaimpi.sdk.resource.Badge;
 
 @Service
 public class RoleStoreServiceImpl implements RoleStoreService {
-
 	@Autowired
-	private DiscordClient discordClient;
+	private GatewayDiscordClient discordClient;
 	@Autowired
 	private PokeAimPIService apiService;
 	@Autowired
@@ -35,8 +34,8 @@ public class RoleStoreServiceImpl implements RoleStoreService {
 	@Override
 	public Flux<DiscordRole> getAllRoles(RoleQuery query) {
 		return getStore().getRoleStore().values()
-			.filter(role -> !role.isManaged())
-			.filter(role -> !role.getName().equalsIgnoreCase("@everyone"))
+			.filter(role -> !role.managed())
+			.filter(role -> !role.name().equalsIgnoreCase("@everyone"))
 			.collectList()
 			.flatMapMany(roles -> gatherRoleData(roles))
 			.filter(role -> ( query.shouldFilterReservedRoles() ? !role.isReserved() : true) );
@@ -51,31 +50,31 @@ public class RoleStoreServiceImpl implements RoleStoreService {
 						.switchIfEmpty(Mono.just(combineMetadata(role))));
 	}
 	
-	private StateHolder getStore() {
-		return discordClient.getServiceMediator().getStateHolder();
+	private StateView getStore() {
+		return discordClient.getGatewayResources().getStateView();
 	}
 	
-	private Flux<DiscordRole> gatherRoleData(List<RoleBean> roles) {
+	private Flux<DiscordRole> gatherRoleData(List<RoleData> roles) {
 		return apiService.getBadges()
-			.collectMap(badge -> Long.parseLong(badge.getDiscordRoleId()))
+			.collectMap(badge -> badge.getDiscordRoleId())
 			.map(badges -> combineMetadata(roles, badges))
 			.flatMapMany(populatedRoles -> Flux.fromIterable(populatedRoles));
 	}
 	
-	private List<DiscordRole> combineMetadata(List<RoleBean> roleBeans, Map<Long, BadgeDTO> badges) {
+	private List<DiscordRole> combineMetadata(List<RoleData> roleBeans, Map<String, Badge> badges) {
 		return roleBeans.stream()
-				.map(role -> badges.containsKey(role.getId()) ? combineMetadata(role, badges.get(role.getId())) : combineMetadata(role))
+				.map(role -> badges.containsKey(role.id()) ? combineMetadata(role, badges.get(role.id())) : combineMetadata(role))
 				.collect(Collectors.toList());
 	}
 	
-	private DiscordRole combineMetadata(RoleBean role, BadgeDTO badge) {
+	private DiscordRole combineMetadata(RoleData role, Badge badge) {
 		DiscordRole result = mapper.convertValue(role, DiscordRole.class);
 		result.setAssignedBadgeId(badge.getId());
 		result.setIsReserved(true);
 		return result;
 	}
 	
-	private DiscordRole combineMetadata(RoleBean role) {
+	private DiscordRole combineMetadata(RoleData role) {
 		DiscordRole result = mapper.convertValue(role, DiscordRole.class);
 		result.setIsReserved(isReservedRole(result));
 		
