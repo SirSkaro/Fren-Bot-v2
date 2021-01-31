@@ -103,6 +103,12 @@ public class DiscordServiceImpl implements DiscordService {
 				.then();	
 	}
 	
+	@Override
+	public Mono<Void> deleteRole(String roleId) {
+		return discordClient.getRoleById(discordConfig.getServerSnowflake(), Snowflake.of(roleId))
+			.flatMap(Role::delete);
+	}
+	
 	private Mono<Guild> fetchServer() {
 		return discordClient.getGuildById(discordConfig.getServerSnowflake());
 	}

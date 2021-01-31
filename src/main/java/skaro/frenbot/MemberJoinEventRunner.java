@@ -33,7 +33,7 @@ public class MemberJoinEventRunner implements CommandLineRunner {
 			.map(event -> event.getMember())
 			.flatMap(member -> restoreRolesForAwardedBadges(member)
 					.then(discordService.assignDividerRoles(member)))
-			.onErrorResume(throwable -> Mono.empty())
+			.onErrorResume(throwable -> {throwable.printStackTrace(); return Mono.empty();})
 			.subscribe(arg -> System.out.println("member join handled"));
 	}
 	

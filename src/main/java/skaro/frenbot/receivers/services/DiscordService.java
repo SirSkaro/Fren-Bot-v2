@@ -24,4 +24,5 @@ public interface DiscordService {
 	Mono<Void> notifyRequestRecieved(Message message);
 	Mono<Boolean> authorHasPermission(Message message, Permission permission);
 	Mono<Role> getRoleById(String id);
+	Mono<Void> deleteRole(String roleId);
 }

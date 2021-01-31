@@ -1,8 +1,11 @@
 package skaro.frenbot;
 
+import java.lang.invoke.MethodHandles;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.core.Ordered;
@@ -21,7 +24,8 @@ import skaro.pokeaimpi.sdk.resource.Badge;
 @Component
 @Order(value = Ordered.HIGHEST_PRECEDENCE)
 public class RoleRemoveEventRunner implements CommandLineRunner {
-
+	private static final Logger LOG = LogManager.getLogger(MethodHandles.lookup().lookupClass());
+	
 	@Autowired
 	private GatewayDiscordClient discordClient;
 	@Autowired
@@ -37,8 +41,8 @@ public class RoleRemoveEventRunner implements CommandLineRunner {
 					.flatMap(member -> getBadgesToReassign(event.getCurrentRoles(), member)
 							.flatMap(badges -> discordService.assignBadgeRoles(member, badges))
 							.then(discordService.assignDividerRoles(member))))
-			.onErrorResume(throwable -> Mono.empty())
-			.subscribe(event -> System.out.println("member edit handled"));
+			.onErrorResume(throwable -> {throwable.printStackTrace(); return Mono.empty();})
+			.subscribe(event -> LOG.info("member edit handled"));
 	}
 	
 	private boolean roleWasRemoved(MemberUpdateEvent event) {

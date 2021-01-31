@@ -44,7 +44,7 @@ public class ReadyEventRunner implements CommandLineRunner {
 					.flatMapMany(awards -> discordService.getAllMembers()
 							.flatMap(member -> reassignMissingBadges(awards, member)
 									.then(discordService.assignDividerRoles(member)))))
-			.onErrorResume(throwable -> Mono.empty())
+			.onErrorResume(throwable -> {throwable.printStackTrace(); return Mono.empty();})
 			.subscribe(arg -> LOG.info("all roles restored"));
 	}
 	
